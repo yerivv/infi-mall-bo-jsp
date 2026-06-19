@@ -1,4 +1,5 @@
 import gulp from 'gulp';
+import eslint from 'gulp-eslint-new';
 import babel from 'gulp-babel';
 import debug from 'gulp-debug';
 import { deleteAsync } from 'del';
@@ -268,6 +269,14 @@ const build = gulp.series([cleanDist, moveDist, compileDist, improveBuild]);
 
 //clean
 const clean = gulp.parallel(cleanLocal, cleanDist);
+
+export function lintJs() {
+	return gulp
+		.src(ROUTES.SRC.JS)
+		.pipe(eslint({ fix: true }))
+		.pipe(eslint.format())
+		.pipe(eslint.failAfterError());
+}
 
 export const run = () => {
 	return inquirer

@@ -1,25 +1,39 @@
 {
-  "name": "gulp-infinier",
+  "name": "INFI-MALL-BO",
   "version": "1.0.0",
   "main": "gulpfile.babel.js",
   "type": "module",
   "author": "infinier",
-  "date": "2022.11.22",
+  "date": "2026.06.19",
   "scripts": {
-    "gulp": "gulp run"
+    "gulp": "gulp run",
+    "lint": "eslint \"src/assets/js/**/*.js\"",
+    "lint:fix": "eslint \"src/assets/js/**/*.js\" --fix",
+    "lint:scss": "stylelint \"src/assets/scss/**/*.scss\"",
+    "lint:scss:fix": "stylelint \"src/assets/scss/**/*.scss\" --fix",
+    "lint:html": "prettier --check \"src/html/**/*.html\"",
+    "lint:html:fix": "prettier --write \"src/html/**/*.html\"",
+    "lint:all": "npm run lint && npm run lint:scss && npm run lint:html",
+    "lint:all:fix": "npm run lint:fix && npm run lint:scss:fix && npm run lint:html:fix"
   },
   "devDependencies": {
     "@babel/core": "^7.20.2",
     "@babel/preset-env": "^7.20.2",
     "@babel/register": "^7.18.9",
+    "@eslint/js": "^10.0.1",
     "browser-sync": "^2.27.10",
     "del": "^7.0.0",
+    "eslint": "^10.5.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.6",
+    "globals": "^17.6.0",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^8.0.0",
     "gulp-babel": "^8.0.0",
     "gulp-changed": "^4.0.3",
     "gulp-concat": "^2.6.1",
     "gulp-debug": "^4.0.0",
+    "gulp-eslint-new": "^2.6.2",
     "gulp-file-include": "^2.3.0",
     "gulp-image": "^6.3.1",
     "gulp-sass": "^5.1.0",
@@ -27,6 +41,10 @@
     "gulp-uglify": "^3.0.2",
     "gulp-w3c-html-validator": "^5.1.4",
     "inquirer": "^9.1.4",
-    "sass": "^1.56.1"
+    "prettier": "^3.8.4",
+    "sass": "^1.56.1",
+    "stylelint": "^17.13.0",
+    "stylelint-config-standard-scss": "^17.0.0",
+    "stylelint-prettier": "^5.0.3"
   }
 }

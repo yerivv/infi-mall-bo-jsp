@@ -1,10 +1,33 @@
-body{@include mo-min-width;@include text;}
+body {
+  @include mo-min-width;
+  @include text;
+}
 
-.site__map{display:block;width:100%;margin:5px 0 0;padding:10px;box-sizing:border-box;text-align:left;background:#eee;}
+.site__map {
+  display: block;
+  width: 100%;
+  margin: 5px 0 0;
+  padding: 10px;
+  box-sizing: border-box;
+  text-align: left;
+  background: #eee;
+}
 
-#app{overflow:hidden;position:relative;}
+#app {
+  overflow: hidden;
+  position: relative;
+}
 
-#container{position:relative;@include float-clear;
-    @include mobile{margin:20px auto;}
-    @include desktop{margin:40px auto;}
+#container {
+  position: relative;
+
+  @include float-clear;
+
+  @include mobile {
+    margin: 20px auto;
+  }
+
+  @include desktop {
+    margin: 40px auto;
+  }
 }
