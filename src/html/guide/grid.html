@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    @@include('@@webRoot/_include/head.html',{ "title": "가이드" })
+    @@include('@@webRoot/_include/library.html')
+    <script src="@@webRoot/js/ui.js"></script>
+    <script src="@@webRoot/js/develop.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      @@include('@@webRoot/_include/header.html')
+      @@include('@@webRoot/_include/navigation.html')
+
+      <main id="container">
+        <h2>AG-Grid</h2>
+        <div id="myGrid" style="height: 500px"></div>
+      </main>
+
+      @@include('@@webRoot/_include/footer.html')
+      @@include('@@webRoot/_include/foot.html')
+      @@include('@@webRoot/_include/modal.html')
+    </div>
+
+    <script>
+      let gridApi;
+      
+      const gridOptions = {
+        defaultColDef: {
+          //flex: 1,
+        },
+        rowData: [
+          { make: "Ford", model: "F-Series", price: 33850, electric: false },
+          { make: "Toyota", model: "Corolla", price: 29600, electric: false },
+          { make: "Mercedes", model: "EQA", price: 48890, electric: true },
+          { make: "Fiat", model: "500", price: 15774, electric: false },
+          { make: "Nissan", model: "Juke", price: 20675, electric: false },
+        ],
+        columnDefs: [
+          { field: "make", width: 500 },
+          { field: "model", width: 500 },
+          { field: "price" , width: 500},
+          { field: "electric",},
+        ],
+        // 선택
+        rowSelection: {
+          mode: 'multiRow',
+        },
+        // 셀 복사
+        enableCellTextSelection: true,
+        ensureDomOrder: true,
+      };
+      
+      gridApi = agGrid.createGrid(document.querySelector("#myGrid"), gridOptions);
+    </script>
+  </body>
+</html>
