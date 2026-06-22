@@ -16,6 +16,10 @@ import gulpimage from 'gulp-image';
 import browserSync from 'browser-sync';
 import inquirer from 'inquirer';
 
+// ★ Tailwind v4 연동을 위한 PostCSS 패키지 추가
+import postcss from 'gulp-postcss';
+import tailwindcss from '@tailwindcss/postcss';
+
 const sass = gulpSass(dartSass);
 
 browserSync.create();
@@ -37,7 +41,8 @@ const ROUTES = {
 		HTML: DIR.SRC + 'html/**/*.html',
 		JS: DIR.SRC + 'assets/js/ui/*.js',
 		DEVELOP: DIR.SRC + 'assets/js/develop.js',
-		CSS: DIR.SRC + 'assets/scss/**/*.{scss,css}',
+		SCSS: DIR.SRC + 'assets/styles/**/*.scss',
+		TW: DIR.SRC + 'assets/styles/globals.css',
 		LIB: DIR.SRC + 'assets/lib/**/*.*',
 		FONTS: DIR.SRC + 'assets/fonts/*.*',
 		IMAGE: DIR.SRC + 'assets/images/**/*.{gif,jpg,png}',
@@ -46,7 +51,7 @@ const ROUTES = {
 	DEV: {
 		HTML: DIR.DEV,
 		JS: DIR.DEV + 'js/',
-		CSS: DIR.DEV + 'css/',
+		STYLES: DIR.DEV + 'styles/',
 		LIB: DIR.DEV + 'lib/',
 		FONTS: DIR.DEV + 'fonts/',
 		IMAGE: DIR.DEV + 'images/',
@@ -55,7 +60,7 @@ const ROUTES = {
 	BUILD: {
 		HTML: DIR.BUILD,
 		JS: DIR.BUILD + 'js/',
-		CSS: DIR.BUILD + 'css/',
+		STYLES: DIR.BUILD + 'styles/',
 		LIB: DIR.BUILD + 'lib/',
 		FONTS: DIR.BUILD + 'fonts/',
 		IMAGE: DIR.BUILD + 'images/',
@@ -150,11 +155,11 @@ const compile = {
 			.pipe(gulp.dest(dest))
 			.pipe(browserSync.reload({ stream: true }));
 	},
-	css(src, dest, mode) {
+	scss(src, dest, mode) {
 		return mode == 'build'
 			? gulp
 					.src(src)
-					.pipe(sass({ outputStyle: 'compressed' }))
+					.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
 					.pipe(
 						autoprefixer({
 							development: [
@@ -171,7 +176,7 @@ const compile = {
 			: gulp
 					.src(src)
 					.pipe(sourcemaps.init())
-					.pipe(sass({ outputStyle: 'expanded' }))
+					.pipe(sass({ outputStyle: 'expanded' }).on('error', sass.logError))
 					.pipe(
 						autoprefixer({
 							development: [
@@ -187,16 +192,25 @@ const compile = {
 					.pipe(gulp.dest(dest))
 					.pipe(browserSync.reload({ stream: true }));
 	},
+	tw(src, dest) {
+		return gulp
+			.src(src)
+			.pipe(postcss([tailwindcss()]))
+			.pipe(debug({ title: 'Tailwind Compile:' }))
+			.pipe(gulp.dest(dest))
+			.pipe(browserSync.reload({ stream: true }));
+	},
 };
 
 //watch
 const live = {
 	watch() {
 		let watcher = {
-			html: gulp.watch(ROUTES.SRC.HTML, compile.html),
-			js: gulp.watch(ROUTES.SRC.JS, compileJsToLocal),
-			develop: gulp.watch(ROUTES.SRC.DEVELOP, compileDevelopToLocal),
-			css: gulp.watch(ROUTES.SRC.CSS, compileCssToLocal),
+			html: gulp.watch(ROUTES.SRC.HTML, gulp.series(compile.html, compileTwToLocal)),
+			js: gulp.watch(ROUTES.SRC.JS, gulp.series(compileJsToLocal, compileTwToLocal)),
+			develop: gulp.watch(ROUTES.SRC.DEVELOP, gulp.series(compileDevelopToLocal, compileTwToLocal)),
+			scss: gulp.watch(ROUTES.SRC.SCSS, compileScssToLocal),
+			tw: gulp.watch(ROUTES.SRC.TW, compileTwToLocal),
 			lib: gulp.watch(ROUTES.SRC.LIB, moveLibToLocal),
 			fonts: gulp.watch(ROUTES.SRC.FONTS, moveFontsToLocal),
 			image: gulp.watch(ROUTES.SRC.IMAGE, moveImageToLocal),
@@ -237,7 +251,8 @@ const improve = {
 const compileHtmlToLocal = () => compile.html();
 const compileJsToLocal = () => compile.js(ROUTES.SRC.JS, ROUTES.DEV.JS);
 const compileDevelopToLocal = () => compile.develop(ROUTES.SRC.DEVELOP, ROUTES.DEV.JS);
-const compileCssToLocal = () => compile.css(ROUTES.SRC.CSS, ROUTES.DEV.CSS);
+const compileScssToLocal = () => compile.scss(ROUTES.SRC.SCSS, ROUTES.DEV.STYLES);
+const compileTwToLocal = () => compile.tw(ROUTES.SRC.TW, ROUTES.DEV.STYLES);
 const moveLibToLocal = () => move.lib(ROUTES.SRC.LIB, ROUTES.DEV.LIB);
 const moveFontsToLocal = () => move.fonts(ROUTES.SRC.FONTS, ROUTES.DEV.FONTS);
 const moveImageToLocal = () => move.image(ROUTES.SRC.IMAGE, ROUTES.DEV.IMAGE);
@@ -245,7 +260,7 @@ const moveMediaToLocal = () => move.media(ROUTES.SRC.MEDIA, ROUTES.DEV.MEDIA);
 
 const cleanLocal = () => deleteAsync(['local']);
 const moveLocal = gulp.parallel(moveLibToLocal, moveFontsToLocal, moveImageToLocal, moveMediaToLocal);
-const compileLocal = gulp.parallel(compileHtmlToLocal, compileJsToLocal, compileDevelopToLocal, compileCssToLocal);
+const compileLocal = gulp.parallel(compileHtmlToLocal, compileJsToLocal, compileDevelopToLocal, compileScssToLocal, compileTwToLocal);
 
 const watchDev = gulp.parallel(live.watch, live.server);
 const dev = gulp.series([cleanLocal, moveLocal, compileLocal, watchDev]);
@@ -254,7 +269,8 @@ const dev = gulp.series([cleanLocal, moveLocal, compileLocal, watchDev]);
 const compileHtmlToDist = () => compile.html('build');
 const compileJsToDist = () => compile.js(ROUTES.SRC.JS, ROUTES.BUILD.JS, 'build');
 const compileDevelopToDist = () => compile.develop(ROUTES.SRC.DEVELOP, ROUTES.BUILD.JS);
-const compileCssToDist = () => compile.css(ROUTES.SRC.CSS, ROUTES.BUILD.CSS, 'build');
+const compileScssToDistDist = () => compile.scss(ROUTES.SRC.SCSS, ROUTES.BUILD.STYLES, 'build');
+const compileTwToDist = () => compile.tw(ROUTES.SRC.TW, ROUTES.BUILD.STYLES);
 const moveLibToDist = () => move.lib(ROUTES.SRC.LIB, ROUTES.BUILD.LIB);
 const moveFontsToDist = () => move.fonts(ROUTES.SRC.FONTS, ROUTES.BUILD.FONTS);
 const moveImageToDist = () => move.image(ROUTES.SRC.IMAGE, ROUTES.BUILD.IMAGE);
@@ -262,7 +278,7 @@ const moveMediaToDist = () => move.media(ROUTES.SRC.MEDIA, ROUTES.BUILD.MEDIA);
 
 const cleanDist = () => deleteAsync(['dist']);
 const moveDist = gulp.parallel(moveLibToDist, moveFontsToDist, moveImageToDist, moveMediaToDist);
-const compileDist = gulp.parallel(compileHtmlToDist, compileJsToDist, compileDevelopToDist, compileCssToDist);
+const compileDist = gulp.parallel(compileHtmlToDist, compileJsToDist, compileDevelopToDist, compileScssToDistDist, compileTwToDist);
 
 const improveBuild = gulp.series([improve.image, improve.validation]);
 const build = gulp.series([cleanDist, moveDist, compileDist, improveBuild]);
@@ -290,8 +306,8 @@ export const run = () => {
 		])
 		.then((answers) => {
 			if (answers.task == 'DEV') {
-				dev();
 				TASK.STATE = TASK.DEV;
+				dev();
 			} else if (answers.task == 'BUILD') {
 				build();
 				TASK.STATE = TASK.BUILD;

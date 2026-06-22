@@ -7,50 +7,178 @@
     <script src="@@webRoot/js/develop.js"></script>
   </head>
   <body>
-    <div id="app">
-      @@include('@@webRoot/_include/header.html')
+    <div class="theme-bo-master flex min-h-screen">
       @@include('@@webRoot/_include/navigation.html')
+      <div class="min-w-px grow">
+        @@include('@@webRoot/_include/header.html')
 
-      <main id="container">
-        <h2>AG-Grid</h2>
-        <div id="myGrid" style="height: 500px"></div>
-      </main>
+        <main id="container" class="flex min-h-px w-full grow gap-4">
+          <div class="w-full min-w-[1200px] p-7.5">
+            <h2 class="text-2xl font-bold mb-4">AG-Grid</h2>
+            <div id="myGrid" class="ag-theme-alpine w-full h-[500px] shadow rounded-lg overflow-hidden"></div>
+          </div>
+        </main>
 
-      @@include('@@webRoot/_include/footer.html')
-      @@include('@@webRoot/_include/foot.html')
-      @@include('@@webRoot/_include/modal.html')
+        @@include('@@webRoot/_include/footer.html')
+        @@include('@@webRoot/_include/foot.html')
+        @@include('@@webRoot/_include/modal.html')
+      </div>
     </div>
 
     <script>
-      let gridApi;
-      
-      const gridOptions = {
-        defaultColDef: {
-          //flex: 1,
-        },
-        rowData: [
-          { make: "Ford", model: "F-Series", price: 33850, electric: false },
-          { make: "Toyota", model: "Corolla", price: 29600, electric: false },
-          { make: "Mercedes", model: "EQA", price: 48890, electric: true },
-          { make: "Fiat", model: "500", price: 15774, electric: false },
-          { make: "Nissan", model: "Juke", price: 20675, electric: false },
-        ],
-        columnDefs: [
-          { field: "make", width: 500 },
-          { field: "model", width: 500 },
-          { field: "price" , width: 500},
-          { field: "electric",},
-        ],
-        // 선택
-        rowSelection: {
-          mode: 'multiRow',
-        },
-        // 셀 복사
-        enableCellTextSelection: true,
-        ensureDomOrder: true,
+      // ==========================================
+      // 공통 Value Formatter 유틸리티 정의
+      // ==========================================
+      const GridFormatters = {
+          /**
+           * 3자리 콤마 + '원' 포맷터
+           */
+            currencyFormatter: (params) => {
+              if (params.value == null || params.value === '') return '-';
+              return `${Number(params.value).toLocaleString()}원`;
+          },
+
+          /**
+           * 할인율 / 백분율(%) 포맷터
+           */
+          rateFormatter: (params) => {
+              if (params.value == null || params.value === '') return '-';
+              // 데이터가 0~1 사이 소수점일 경우 100을 곱함 (예: 0.15 -> 15%)
+              const val = params.value < 1 ? params.value * 100 : params.value;
+              // 소수점 없이 정수로 똑 떨어지게 하거나, 필요시 토글 가능하도록 내장 메서드 처리
+              return `${Math.round(val)}%`;
+          },
+
+          /**
+           * 날짜/시간 포맷터 (yyyy-mm-dd HH:MM:SS)
+           */
+          dateTimeFormatter: (params) => {
+              if (!params.value) return '-';
+              const date = new Date(params.value);
+              if (isNaN(date.getTime())) return params.value; 
+
+              const pad = (num) => String(num).padStart(2, '0');
+              return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+          },
+          /**
+           * 단순 날짜 포맷터 (yyyy-mm-dd)
+           */
+            dateFormatter: (params) => {
+              if (!params.value) return '-';
+              const date = new Date(params.value);
+              if (isNaN(date.getTime())) return params.value;
+
+              const pad = (num) => String(num).padStart(2, '0');
+              return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+          }
       };
-      
-      gridApi = agGrid.createGrid(document.querySelector("#myGrid"), gridOptions);
-    </script>
+
+      // ==========================================
+      // 액션 핸들러 함수 (전역 스코프 배치)
+      // ==========================================
+      const RowActionHandler = {
+        // 상세
+        detail: (id) => {
+          alert(`ID: ${id}번 상세 페이지로 이동합니다.`);
+          // window.location.href = `/product/detail.do?id=${id}`;
+        },
+        // 수정
+        edit: (id) => {
+          alert(`ID: ${id}번 수정 페이지로 이동합니다.`);
+          // window.location.href = `/product/detail.do?id=${id}`;
+        },
+        // 행 삭제
+        delete: (id) => {
+          if (confirm(`ID: ${id}번 데이터를 정말 삭제하시겠습니까?`)) {
+              // AG Grid에서 데이터 제거 api 호출
+              const rowNode = gridApi.getRowNode(id);
+              if (rowNode) {
+                  gridApi.applyTransaction({ remove: [rowNode.data] });
+                  alert('삭제되었습니다.');
+              }
+          }
+        },
+        // 커스텀 버튼
+        custom: (id, actionName) => {
+          alert(`ID: ${id}번 행에서 [${actionName}] 커스텀 액션이 발생했습니다.`);
+        }
+      }
+
+      function actionsCellRenderer(params) {
+        const data = params.data;
+        if (!data) return '';
+      }
+
+      // ==========================================
+      // AG Grid 컬럼 정의 (Column Definitions)
+      // ==========================================
+      const columnDefs = [
+            { field: 'id', headerName: 'ID', width: 70 },
+            { field: 'productName', headerName: '상품명', width: 220 },
+            { 
+                field: 'originalPrice', 
+                headerName: '정가', 
+                width: 140,
+                valueFormatter: GridFormatters.currencyFormatter
+            },
+            { 
+                field: 'discountRate', 
+                headerName: '할인율', 
+                width: 110,
+                valueFormatter: GridFormatters.rateFormatter,
+                cellClass: 'text-red-500 font-semibold'
+            },
+            { 
+                field: 'salePrice', 
+                headerName: '판매가', 
+                width: 140,
+                valueFormatter: GridFormatters.currencyFormatter
+            },
+            { 
+                field: 'createdAt', 
+                headerName: '등록 일시', 
+                width: 220,
+                valueFormatter: GridFormatters.dateTimeFormatter 
+            },
+            {
+              colId: 'actions',
+              headerName: '관리',
+              width: 200,
+              cellRenderer: actionsCellRenderer,
+              sortable: false,
+              filter: false,
+              resizable: false
+            }
+        ];
+
+        // 샘플 데이터 (할인율이 소수점 형태든 정수 형태든 모두 호환되도록 설계)
+        const rowData = [
+            { id: 1, productName: '기계식 키보드 청축', originalPrice: 120000, discountRate: 0.15, salePrice: 102000, createdAt: '2026-06-22T11:15:30' },
+            { id: 2, productName: '인체공학 무선 마우스', originalPrice: 89000, discountRate: 20, salePrice: 71200, createdAt: '2026-05-10T09:01:05' },
+            { id: 3, productName: '가죽 데스크 패드', originalPrice: 25000, discountRate: 0, salePrice: 25000, createdAt: '2026-01-01T00:00:00' },
+            { id: 4, productName: '한정판 에코백', originalPrice: null, discountRate: null, salePrice: 0, createdAt: null } 
+        ];
+      // 그리드 옵션 설정
+      const gridOptions = {
+          columnDefs: columnDefs,
+          rowData: rowData,
+          getRowId: (params) => params.data.id, // ID를 고유 키로 매핑해주어야 행 삭제(getRowNode) 시 정상 동작
+          defaultColDef: {
+              sortable: true,
+              resizable: true
+          },
+          enableCellTextSelection: true,
+          ensureDomOrder: true,
+      };
+
+      // ==========================================
+      // 3. DOM 로드 후 AG Grid 초기화 (마운트)
+      // ==========================================
+      document.addEventListener('DOMContentLoaded', () => {
+          const gridDiv = document.querySelector('#myGrid');
+          // AG Grid 인스턴스 생성 및 마운트
+          agGrid.createGrid(gridDiv, gridOptions);
+      });
+  </script>
   </body>
 </html>
