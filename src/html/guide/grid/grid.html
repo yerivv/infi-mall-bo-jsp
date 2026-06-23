@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    @@include('@@webRoot/_include/head.html',{ "title": "가이드" })
+    @@include('@@webRoot/_include/library.html')
+  </head>
+  <body class="bg-gray-50 text-gray-800 p-6">
+
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Vanilla JS Data Grid 라이브러리 비교</h1>
+      <p class="text-gray-600 mt-2">AG Grid와 TUI Grid의 Vanilla JS 구현 방식을 비교하고 프로젝트에 적합한 그리드를 선택하세요.</p>
+    </header>
+  
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      
+      <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold text-blue-600">1. AG Grid (Community)</h2>
+          <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-semibold">Global Standard</span>
+        </div>
+        <p class="text-sm text-gray-500 mb-4">대용량 데이터와 미려한 가상 스크롤링에 강점이 있습니다.</p>
+        
+        <div id="myAgGrid" class="ag-theme-alpine w-full h-[400px]"></div>
+        
+        <div class="mt-4 p-3 bg-gray-50 rounded text-xs text-gray-600" id="agGridConsole">
+          💡 AG Grid 이벤트 로그가 여기에 표시됩니다.
+        </div>
+      </div>
+  
+      <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold text-green-600">2. TUI Grid (Toast UI Grid)</h2>
+          <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded font-semibold">NHN Open Source</span>
+        </div>
+        <p class="text-sm text-gray-500 mb-4">국내 비즈니스 환경에 맞는 깔끔한 UI와 내장 에디터가 강점입니다.</p>
+        
+        <div id="myTuiGrid" class="w-full h-[400px]"></div>
+        
+        <div class="mt-4 p-3 bg-gray-50 rounded text-xs text-gray-600" id="tuiGridConsole">
+          💡 TUI Grid 이벤트 로그가 여기에 표시됩니다.
+        </div>
+      </div>
+  
+    </div>
+  
+    <script>
+      // --- 공통 샘플 데이터 정의 ---
+      const sampleData = [
+        { id: 1, name: '홍길동', role: 'Admin', status: 'Active', updatedAt: '2026-06-01' },
+        { id: 2, name: '김철수', role: 'Editor', status: 'Away', updatedAt: '2026-06-15' },
+        { id: 3, name: '이영희', role: 'Viewer', status: 'Active', updatedAt: '2026-06-20' },
+        { id: 4, name: '박민수', role: 'Editor', status: 'Pending', updatedAt: '2026-06-22' },
+        { id: 5, name: '최지우', role: 'Viewer', status: 'Inactive', updatedAt: '2026-05-30' }
+      ];
+  
+      // DOM 컨텐츠가 완전히 로드된 후 그리드 초기화 (시점 오류 방지)
+      document.addEventListener('DOMContentLoaded', () => {
+        initAgGrid();
+        initTuiGrid();
+      });
+  
+      /* =================================================================
+         1. AG Grid 구현 로직
+      ================================================================= */
+      function initAgGrid() {
+        const gridDiv = document.querySelector('#myAgGrid');
+        const consoleDiv = document.querySelector('#agGridConsole');
+  
+        // 컬럼 정의
+        const columnDefs = [
+          { field: 'id', headerName: 'ID', width: 70, sortable: true },
+          { field: 'name', headerName: '이름', width: 120, filter: true, editable: true },
+          { field: 'role', headerName: '권한', width: 120 },
+          { 
+            field: 'status', 
+            headerName: '상태', 
+            width: 110,
+            cellClassRules: {
+              'text-green-600 font-bold': params => params.value === 'Active',
+              'text-red-500 font-bold': params => params.value === 'Inactive'
+            }
+          },
+          { field: 'updatedAt', headerName: '수정일', flex: 1 }
+        ];
+  
+        // 그리드 옵션 설정
+        const gridOptions = {
+          columnDefs: columnDefs,
+          rowData: sampleData,
+          defaultColDef: {
+            resizable: true,
+          },
+          // 네이티브 이벤트 바인딩
+          onCellClicked: (params) => {
+            consoleDiv.innerText = `[Click] AG Grid - 셀 클릭됨: ${params.column.colId} = ${params.value}`;
+          },
+          onCellValueChanged: (params) => {
+            consoleDiv.innerText = `[Change] AG Grid - 값 변경됨: ${params.oldValue} -> ${params.newValue}`;
+          }
+        };
+  
+        // 인스턴스 생성 및 마운트 (v30+ 최신 문법 기준)
+        agGrid.createGrid(gridDiv, gridOptions);
+      }
+  
+  
+      /* =================================================================
+         2. TUI Grid (Toast UI) 구현 로직
+      ================================================================= */
+      function initTuiGrid() {
+        const gridDiv = document.getElementById('myTuiGrid');
+        const consoleDiv = document.getElementById('tuiGridConsole');
+  
+        // TUI Grid 전용 테마 적용 (clean, striped, default 등 제공)
+        tui.Grid.applyTheme('clean');
+  
+        // 인스턴스 생성 및 옵션 바인딩
+        const grid = new tui.Grid({
+          el: gridDiv,
+          data: sampleData,
+          scrollX: false,
+          scrollY: true,
+          bodyHeight: 350,
+          columns: [
+            { header: 'ID', name: 'id', width: 60, align: 'center', sortingType: 'asc', sortable: true },
+            { 
+              header: '이름', 
+              name: 'name', 
+              width: 120, 
+              editor: 'text' // TUI Grid는 빌트인 인라인 에디터 지정이 매우 직관적임
+            },
+            { header: '권한', name: 'role', width: 120 },
+            { 
+              header: '상태', 
+              name: 'status', 
+              width: 110,
+              align: 'center',
+              formatter: (props) => { // 커스텀 HTML 포매터
+                const val = props.value;
+                let color = 'text-gray-600';
+                if(val === 'Active') color = 'text-green-600 font-bold';
+                if(val === 'Inactive') color = 'text-red-500 font-bold';
+                return `<span class="${color}">${val}</span>`;
+              }
+            },
+            { header: '수정일', name: 'updatedAt' }
+          ]
+        });
+  
+        // 라이브러리 자체 이벤트 리스너 바인딩
+        grid.on('click', (ev) => {
+          if (ev.rowKey !== undefined && ev.columnName) {
+            const value = grid.getValue(ev.rowKey, ev.columnName);
+            consoleDiv.innerText = `[Click] TUI Grid - 셀 클릭됨: Row ${ev.rowKey}, Col: ${ev.columnName} = ${value}`;
+          }
+        });
+  
+        grid.on('afterChange', (ev) => {
+          const change = ev.changes[0];
+          consoleDiv.innerText = `[Change] TUI Grid - 값 변경됨: ${change.oldValue} -> ${change.value}`;
+        });
+      }
+    </script>
+  </body>
+</html>
