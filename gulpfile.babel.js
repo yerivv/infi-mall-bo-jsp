@@ -1,17 +1,13 @@
 import gulp from 'gulp';
 import eslint from 'gulp-eslint-new';
-import babel from 'gulp-babel';
 import debug from 'gulp-debug';
 import { deleteAsync } from 'del';
 import changed from 'gulp-changed';
 import include from 'gulp-file-include';
 import { htmlValidator } from 'gulp-w3c-html-validator';
-import concat from 'gulp-concat';
-import uglify from 'gulp-uglify';
 import dartSass from 'sass';
 import gulpSass from 'gulp-sass';
 import autoprefixer from 'gulp-autoprefixer';
-import sourcemaps from 'gulp-sourcemaps';
 import gulpimage from 'gulp-image';
 import browserSync from 'browser-sync';
 import inquirer from 'inquirer';
@@ -39,8 +35,7 @@ const DIR = {
 const ROUTES = {
 	SRC: {
 		HTML: DIR.SRC + 'html/**/*.html',
-		JS: DIR.SRC + 'assets/js/ui/*.js',
-		DEVELOP: DIR.SRC + 'assets/js/develop.js',
+		JS: DIR.SRC + 'assets/js/**/*.js',
 		SCSS: DIR.SRC + 'assets/styles/**/*.scss',
 		TW: DIR.SRC + 'assets/styles/globals.css',
 		LIB: DIR.SRC + 'assets/lib/**/*.*',
@@ -127,31 +122,11 @@ const compile = {
 				deleteAsync([TASK.STATE + '_include']);
 			});
 	},
-	js(src, dest, mode) {
-		return mode == 'build'
-			? gulp
-					.src(src)
-					.pipe(babel())
-					.pipe(concat('ui.js'))
-					.pipe(uglify())
-					.pipe(debug({ title: 'JS Compile:' }))
-					.pipe(gulp.dest(dest))
-					.pipe(browserSync.reload({ stream: true }))
-			: gulp
-					.src(src)
-					.pipe(sourcemaps.init())
-					.pipe(babel())
-					.pipe(concat('ui.js'))
-					.pipe(debug({ title: 'JS Compile:' }))
-					.pipe(sourcemaps.write())
-					.pipe(gulp.dest(dest))
-					.pipe(browserSync.reload({ stream: true }));
-	},
-	develop(src, dest) {
+	js(src, dest) {
+		const base = DIR.SRC + 'assets/js';
 		return gulp
-			.src(src)
-			.pipe(babel())
-			.pipe(debug({ title: 'DEVELOP Compile:' }))
+			.src(src, { base })
+			.pipe(debug({ title: 'JS Copy:' }))
 			.pipe(gulp.dest(dest))
 			.pipe(browserSync.reload({ stream: true }));
 	},
@@ -175,7 +150,6 @@ const compile = {
 					.pipe(browserSync.reload({ stream: true }))
 			: gulp
 					.src(src)
-					.pipe(sourcemaps.init())
 					.pipe(sass({ outputStyle: 'expanded' }).on('error', sass.logError))
 					.pipe(
 						autoprefixer({
@@ -188,7 +162,6 @@ const compile = {
 						})
 					)
 					.pipe(debug({ title: 'SCSS Compile:' }))
-					.pipe(sourcemaps.write())
 					.pipe(gulp.dest(dest))
 					.pipe(browserSync.reload({ stream: true }));
 	},
@@ -208,7 +181,6 @@ const live = {
 		let watcher = {
 			html: gulp.watch(ROUTES.SRC.HTML, gulp.series(compile.html, compileTwToLocal)),
 			js: gulp.watch(ROUTES.SRC.JS, gulp.series(compileJsToLocal, compileTwToLocal)),
-			develop: gulp.watch(ROUTES.SRC.DEVELOP, gulp.series(compileDevelopToLocal, compileTwToLocal)),
 			scss: gulp.watch(ROUTES.SRC.SCSS, compileScssToLocal),
 			tw: gulp.watch(ROUTES.SRC.TW, compileTwToLocal),
 			lib: gulp.watch(ROUTES.SRC.LIB, moveLibToLocal),
@@ -250,7 +222,6 @@ const improve = {
 //dev
 const compileHtmlToLocal = () => compile.html();
 const compileJsToLocal = () => compile.js(ROUTES.SRC.JS, ROUTES.DEV.JS);
-const compileDevelopToLocal = () => compile.develop(ROUTES.SRC.DEVELOP, ROUTES.DEV.JS);
 const compileScssToLocal = () => compile.scss(ROUTES.SRC.SCSS, ROUTES.DEV.STYLES);
 const compileTwToLocal = () => compile.tw(ROUTES.SRC.TW, ROUTES.DEV.STYLES);
 const moveLibToLocal = () => move.lib(ROUTES.SRC.LIB, ROUTES.DEV.LIB);
@@ -260,15 +231,14 @@ const moveMediaToLocal = () => move.media(ROUTES.SRC.MEDIA, ROUTES.DEV.MEDIA);
 
 const cleanLocal = () => deleteAsync(['local']);
 const moveLocal = gulp.parallel(moveLibToLocal, moveFontsToLocal, moveImageToLocal, moveMediaToLocal);
-const compileLocal = gulp.parallel(compileHtmlToLocal, compileJsToLocal, compileDevelopToLocal, compileScssToLocal, compileTwToLocal);
+const compileLocal = gulp.parallel(compileHtmlToLocal, compileJsToLocal, compileScssToLocal, compileTwToLocal);
 
 const watchDev = gulp.parallel(live.watch, live.server);
 const dev = gulp.series([cleanLocal, moveLocal, compileLocal, watchDev]);
 
 //build
 const compileHtmlToDist = () => compile.html('build');
-const compileJsToDist = () => compile.js(ROUTES.SRC.JS, ROUTES.BUILD.JS, 'build');
-const compileDevelopToDist = () => compile.develop(ROUTES.SRC.DEVELOP, ROUTES.BUILD.JS);
+const compileJsToDist = () => compile.js(ROUTES.SRC.JS, ROUTES.BUILD.JS);
 const compileScssToDistDist = () => compile.scss(ROUTES.SRC.SCSS, ROUTES.BUILD.STYLES, 'build');
 const compileTwToDist = () => compile.tw(ROUTES.SRC.TW, ROUTES.BUILD.STYLES);
 const moveLibToDist = () => move.lib(ROUTES.SRC.LIB, ROUTES.BUILD.LIB);
@@ -278,7 +248,7 @@ const moveMediaToDist = () => move.media(ROUTES.SRC.MEDIA, ROUTES.BUILD.MEDIA);
 
 const cleanDist = () => deleteAsync(['dist']);
 const moveDist = gulp.parallel(moveLibToDist, moveFontsToDist, moveImageToDist, moveMediaToDist);
-const compileDist = gulp.parallel(compileHtmlToDist, compileJsToDist, compileDevelopToDist, compileScssToDistDist, compileTwToDist);
+const compileDist = gulp.parallel(compileHtmlToDist, compileJsToDist, compileScssToDistDist, compileTwToDist);
 
 const improveBuild = gulp.series([improve.image, improve.validation]);
 const build = gulp.series([cleanDist, moveDist, compileDist, improveBuild]);
