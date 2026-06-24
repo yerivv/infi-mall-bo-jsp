@@ -13,7 +13,27 @@
         <main id="container" class="flex min-h-px w-full grow gap-4">
           <div class="w-full min-w-[1200px] p-7.5">
             <h2 class="text-2xl font-bold mb-4">TUI-Grid</h2>
-            <div id="myGrid" class="ag-theme-alpine w-full h-[500px] shadow rounded-lg overflow-hidden"></div>
+
+            <div class="mt-10">
+              <div class="grid-toolbar w-full flex items-center text-sm my-4">
+                <h3 class="text-lg">기본 리스트 - 총 N개의 결과</h3>
+              </div>
+              <div id="tuiGrid" class="w-full"></div>
+            </div>
+
+            <div class="mt-10">
+              <div class="grid-toolbar w-full flex items-center text-sm my-4">
+                <h3 class="text-lg">선택 리스트 - 총 N개의 결과</h3>
+              </div>
+              <div id="sampleGrid2" class="w-full"></div>
+            </div>
+
+            <div class="mt-10">
+              <div class="grid-toolbar w-full flex items-center text-sm my-4">
+                <h3 class="text-lg">순서 변경 리스트 - 총 N개의 결과</h3>
+              </div>
+              <div id="sampleGrid3" class="w-full"></div>
+            </div>
           </div>
         </main>
 
@@ -22,5 +42,13 @@
         @@include('@@webRoot/_include/modal.html')
       </div>
     </div>
+
+    <script src="@@webRoot/js/grid/tui-grid.common.js"></script>
+    <script src="@@webRoot/js/grid/tui-grid.utils.js"></script>
+    <script src="@@webRoot/js/grid/mocks/tui-sample.js"></script>
+
+    <script>
+    </script>
+
   </body>
 </html>
