@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    @@include('@@webRoot/_include/head.html',{ "title": "가이드 - AG Grid 사용법" })
+    @@include('@@webRoot/_include/library.html')
+    <style>
+      .guide-section { margin-top: 48px; }
+      .guide-section + .guide-section { border-top: 1px solid #e2e8f0; padding-top: 48px; }
+      .guide-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+      .guide-desc { font-size: 13px; color: #64748b; margin-bottom: 20px; line-height: 1.6; }
+      .guide-subtitle { font-size: 14px; font-weight: 600; margin: 20px 0 8px; color: #1e293b; }
+      pre { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; font-size: 12px; line-height: 1.7; overflow-x: auto; tab-size: 2; }
+      code { font-family: 'Fira Code', 'Consolas', monospace; }
+      .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+      .badge-blue  { background: #dbeafe; color: #1d4ed8; }
+      .badge-green { background: #dcfce7; color: #15803d; }
+      .badge-gray  { background: #f1f5f9; color: #475569; }
+      .badge-red   { background: #fee2e2; color: #b91c1c; }
+      table { width: 100%; border-collapse: collapse; font-size: 13px; }
+      table th { background: #f8fafc; padding: 10px 14px; text-align: left; font-weight: 600; border: 1px solid #e2e8f0; color: #374151; }
+      table td { padding: 10px 14px; border: 1px solid #e2e8f0; color: #374151; vertical-align: top; }
+      table td code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+      .toolbar-preview { display: flex; align-items: center; gap: 4px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; }
+    </style>
+  </head>
+  <body>
+    <div class="theme-bo-master flex min-h-screen">
+      @@include('@@webRoot/_include/navigation.html')
+      <div class="min-w-px grow">
+        @@include('@@webRoot/_include/header.html')
+
+        <main id="container" class="flex min-h-px w-full grow gap-4">
+          <div class="w-full min-w-[1200px] p-7.5">
+            <!-- 컨텐츠 시작 -->
+            <h2 class="text-2xl font-bold mb-1">AG-Grid 사용 가이드</h2>
+            <p class="text-sm text-slate-500 mb-2">공통 모듈 <code>ag-grid.common.js</code> / <code>ag-grid.utils.js</code> 기반 그리드 작성 방법</p>
+
+            <!-- ===================== 1. 스크립트 로드 ===================== -->
+            <div class="guide-section">
+              <div class="guide-title">1. 스크립트 로드 순서</div>
+              <div class="guide-desc">그리드를 사용하는 페이지 하단 <code>&lt;/body&gt;</code> 직전에 아래 순서대로 포함해야 합니다.</div>
+              <pre><code>&lt;script src="@@webRoot/js/grid/ag-grid.common.js"&gt;&lt;/script&gt;
+&lt;script src="@@webRoot/js/grid/ag-grid.utils.js"&gt;&lt;/script&gt;
+&lt;!-- 페이지별 그리드 초기화 스크립트 --&gt;
+&lt;script src="@@webRoot/js/페이지명.js"&gt;&lt;/script&gt;</code></pre>
+            </div>
+
+            <!-- ===================== 2. GridCommon.init ===================== -->
+            <div class="guide-section">
+              <div class="guide-title">2. GridCommon.init — 그리드 초기화</div>
+              <div class="guide-desc">
+                그리드를 생성하고 AG Grid API 인스턴스를 반환합니다.<br>
+                <code>baseOptions</code>가 기본으로 적용되며 두 번째 인자로 커스텀 옵션을 병합할 수 있습니다.
+              </div>
+
+              <div class="guide-subtitle">기본 사용법</div>
+              <pre><code>const myGridApi = GridCommon.init(document.querySelector('#myGrid'), {
+  columnDefs: columnDefs,
+  rowData: rowData,
+});</code></pre>
+
+              <div class="guide-subtitle">baseOptions 기본값</div>
+              <table>
+                <colgroup><col style="width:200px"><col style="width:200px"><col></colgroup>
+                <thead>
+                  <tr><th>옵션</th><th>기본값</th><th>설명</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>localeText</code></td><td><code>AG_GRID_LOCALE_KR</code></td><td>한국어 로케일 (라이브러리 포함)</td></tr>
+                  <tr><td><code>getRowId</code></td><td><code>String(data.id)</code></td><td>행 고유키. 행 삭제·갱신에 필수. 데이터에 <code>id</code> 필드가 있어야 함</td></tr>
+                  <tr><td><code>sortable</code></td><td><code>true</code></td><td>모든 컬럼 정렬 허용</td></tr>
+                  <tr><td><code>resizable</code></td><td><code>true</code></td><td>모든 컬럼 너비 조절 허용</td></tr>
+                  <tr><td><code>enableCellTextSelection</code></td><td><code>true</code></td><td>셀 텍스트 드래그 선택 허용</td></tr>
+                  <tr><td><code>pagination</code></td><td><code>true</code></td><td>페이지네이션 활성화</td></tr>
+                  <tr><td><code>paginationPageSize</code></td><td><code>20</code></td><td>페이지당 기본 행 수</td></tr>
+                  <tr><td><code>paginationPageSizeSelector</code></td><td><code>[10, 20, 50, 100, 300, 500]</code></td><td>페이지 크기 선택 옵션</td></tr>
+                </tbody>
+              </table>
+
+              <div class="guide-subtitle">자주 쓰는 커스텀 옵션 예시</div>
+              <pre><code>const myGridApi = GridCommon.init(document.querySelector('#myGrid'), {
+  columnDefs: columnDefs,
+  rowData: rowData,
+
+  // 행 선택 (단일: singleRow / 다중: multiRow)
+  rowSelection: { mode: 'multiRow' },
+
+  // 행 높이 커스텀
+  rowHeight: 46,
+  headerHeight: 46,
+
+  // 페이지네이션 끄기
+  pagination: false,
+
+  // 드래그 순서 변경
+  rowDragManaged: true,
+  animateRows: true,
+});</code></pre>
+            </div>
+
+            <!-- ===================== 3. GridToolbar ===================== -->
+            <div class="guide-section">
+              <div class="guide-title">3. GridToolbar — 툴바 기능</div>
+              <div class="guide-desc">
+                그리드 API 인스턴스를 첫 번째 인자로 전달합니다.<br>
+                패널이 열리는 버튼(<code>resetPinned</code>, <code>columnSelect</code>)은 <code>this</code>를 두 번째 인자로 넘겨 버튼 기준 위치에 패널을 표시합니다.
+              </div>
+
+              <div class="guide-subtitle">툴바 HTML 패턴</div>
+              <pre><code>&lt;div class="grid-toolbar w-full flex items-center text-sm my-4"&gt;
+  &lt;h3 class="text-lg"&gt;리스트 제목 - 총 N개의 결과&lt;/h3&gt;
+  &lt;div class="ml-auto flex gap-1"&gt;
+    &lt;button onclick="GridToolbar.resetAlign(myGridApi)"
+      class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer"&gt;정렬 초기화&lt;/button&gt;
+    &lt;button onclick="GridToolbar.resetFilter(myGridApi)"
+      class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer"&gt;필터 초기화&lt;/button&gt;
+    &lt;button onclick="GridToolbar.resetPinned(myGridApi, this)"
+      class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer"&gt;컬럼 고정 선택&lt;/button&gt;
+    &lt;button onclick="GridToolbar.columnSelect(myGridApi, this)"
+      class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer"&gt;컬럼 표시 선택&lt;/button&gt;
+    &lt;button onclick="GridToolbar.csvDown(myGridApi)"
+      class="bg-green-100 hover:bg-green-200 px-3 py-1.5 rounded text-xs cursor-pointer"&gt;CSV 다운로드&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+              <div class="guide-subtitle">함수 목록</div>
+              <table>
+                <colgroup><col style="width:220px"><col style="width:240px"><col></colgroup>
+                <thead>
+                  <tr><th>함수</th><th>인자</th><th>설명</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>GridToolbar.resetAlign(gridApi)</code></td>
+                    <td><code>gridApi</code></td>
+                    <td>모든 컬럼 정렬 상태를 초기화합니다.</td>
+                  </tr>
+                  <tr>
+                    <td><code>GridToolbar.resetFilter(gridApi)</code></td>
+                    <td><code>gridApi</code></td>
+                    <td>모든 컬럼 필터를 초기화합니다.</td>
+                  </tr>
+                  <tr>
+                    <td><code>GridToolbar.resetPinned(gridApi, triggerEl)</code></td>
+                    <td><code>gridApi</code>, <code>this</code></td>
+                    <td>컬럼별 좌측 고정 여부를 체크박스로 선택하는 패널을 엽니다. 하단에 <strong>전체 초기화</strong> 버튼 포함. <code>dragColumn</code>은 목록에서 제외됩니다.</td>
+                  </tr>
+                  <tr>
+                    <td><code>GridToolbar.columnSelect(gridApi, triggerEl)</code></td>
+                    <td><code>gridApi</code>, <code>this</code></td>
+                    <td>컬럼별 표시/숨김을 체크박스로 선택하는 패널을 엽니다. 하단에 <strong>전체 선택 / 선택 해제</strong> 버튼 포함. <code>dragColumn</code>은 목록에서 제외됩니다.</td>
+                  </tr>
+                  <tr>
+                    <td><code>GridToolbar.csvDown(gridApi)</code></td>
+                    <td><code>gridApi</code></td>
+                    <td>현재 그리드 데이터를 CSV로 다운로드합니다. 포매터가 적용된 값이 그대로 출력됩니다.</td>
+                  </tr>
+                  <tr>
+                    <td><code>GridToolbar.editRow(gridApi, triggerEl)</code></td>
+                    <td><code>gridApi</code>, <code>this</code></td>
+                    <td>드래그 순서 변경 모드를 활성화합니다. <code>colId: 'dragColumn'</code> 컬럼이 정의되어 있어야 합니다. 변경/취소 버튼(<code>id="btnSaveOrder"</code>, <code>id="btnCancelOrder"</code>)과 함께 사용합니다.</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="guide-subtitle">editRow 사용 시 HTML 패턴</div>
+              <pre><code>&lt;!-- 순서 변경 전용 버튼 그룹 --&gt;
+&lt;div class="flex items-center gap-2"&gt;
+  &lt;button onclick="GridToolbar.editRow(myGridApi3, this)"
+    class="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded text-xs cursor-pointer"&gt;전시 순서 변경&lt;/button&gt;
+  &lt;button id="btnSaveOrder"
+    class="hidden bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded text-xs cursor-pointer"&gt;변경&lt;/button&gt;
+  &lt;button id="btnCancelOrder"
+    class="hidden bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded text-xs cursor-pointer"&gt;취소&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- columnDefs에 dragColumn 정의 필수 --&gt;</code></pre>
+              <pre><code>// columnDefs 예시
+{
+  colId: 'dragColumn',     // GridToolbar.editRow가 이 colId를 찾아 제어함
+  rowDrag: true,
+  width: 50, minWidth: 50, maxWidth: 50,
+  pinned: 'left',
+  sortable: false, filter: false, resizable: false,
+  suppressHeaderMenuButton: true,
+  hide: true               // 초기에는 숨김 상태로 정의
+}</code></pre>
+            </div>
+
+            <!-- ===================== 4. GridFormatters ===================== -->
+            <div class="guide-section">
+              <div class="guide-title">4. GridFormatters — 셀 값 포매터</div>
+              <div class="guide-desc">
+                컬럼 정의의 <code>valueFormatter</code> 속성에 지정합니다. 화면 표시 값만 변환하며 실제 데이터는 유지됩니다.
+              </div>
+              <table>
+                <colgroup><col style="width:220px"><col style="width:160px"><col style="width:160px"><col></colgroup>
+                <thead>
+                  <tr><th>포매터</th><th>입력 예</th><th>출력 예</th><th>설명</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>GridFormatters.currencyFormatter</code></td>
+                    <td><code>102000</code></td>
+                    <td><code>102,000원</code></td>
+                    <td>3자리 콤마 + '원'. null/빈값은 <code>-</code> 출력</td>
+                  </tr>
+                  <tr>
+                    <td><code>GridFormatters.rateFormatter</code></td>
+                    <td><code>0.15</code> 또는 <code>15</code></td>
+                    <td><code>15%</code></td>
+                    <td>소수(0~1) 또는 정수(1 이상) 모두 자동 인식. null은 <code>-</code></td>
+                  </tr>
+                  <tr>
+                    <td><code>GridFormatters.dateTimeFormatter</code></td>
+                    <td><code>2026-06-22T11:15:30</code></td>
+                    <td><code>2026-06-22 11:15:30</code></td>
+                    <td>ISO 문자열 → <code>yyyy-mm-dd HH:MM:SS</code>. null은 <code>-</code></td>
+                  </tr>
+                  <tr>
+                    <td><code>GridFormatters.dateFormatter</code></td>
+                    <td><code>2026-06-22T11:15:30</code></td>
+                    <td><code>2026-06-22</code></td>
+                    <td>날짜만 표시. null은 <code>-</code></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="guide-subtitle">사용 예시</div>
+              <pre><code>const columnDefs = [
+  {
+    field: 'salePrice',
+    headerName: '판매가',
+    valueFormatter: GridFormatters.currencyFormatter
+  },
+  {
+    field: 'discountRate',
+    headerName: '할인율',
+    valueFormatter: GridFormatters.rateFormatter
+  },
+  {
+    field: 'createdAt',
+    headerName: '등록 일시',
+    valueFormatter: GridFormatters.dateTimeFormatter
+  },
+];</code></pre>
+            </div>
+
+            <!-- ===================== 5. GridUtils ===================== -->
+            <div class="guide-section">
+              <div class="guide-title">5. GridUtils — 셀 렌더러</div>
+              <div class="guide-desc">
+                컬럼 정의의 <code>cellRenderer</code> + <code>cellRendererParams</code>로 사용합니다.
+              </div>
+
+              <!-- actionButtonsCellRenderer -->
+              <div class="guide-subtitle">actionButtonsCellRenderer — 버튼 셀</div>
+              <pre><code>{
+  colId: 'actions',
+  headerName: '관리',
+  width: 240,
+  sortable: false, filter: false, resizable: false,
+  cellRenderer: GridUtils.actionButtonsCellRenderer,
+  cellRendererParams: {
+    buttons: [
+      {
+        label: '수정',
+        variant: 'primary',      // primary | secondary | danger | default(생략가능)
+        onClick: (data) => {
+          location.href = '/admin/edit?id=' + data.id;
+        }
+      },
+      {
+        label: '삭제',
+        variant: 'danger',
+        onClick: (data) => {
+          if (confirm('삭제하시겠습니까?')) { /* 삭제 처리 */ }
+        }
+      },
+      {
+        label: '미리보기',
+        show: (data) => data.displayStatus === '전시', // 조건부 노출 (선택)
+        onClick: (data) => { window.open(data.link); }
+      },
+    ]
+  }
+}</code></pre>
+              <table style="margin-top:10px">
+                <colgroup><col style="width:120px"><col style="width:100px"><col></colgroup>
+                <thead><tr><th>variant</th><th>색상</th><th>용도</th></tr></thead>
+                <tbody>
+                  <tr><td><code>primary</code></td><td><span class="badge badge-gray">검정</span></td><td>주요 액션 (수정, 저장)</td></tr>
+                  <tr><td><code>secondary</code></td><td><span class="badge badge-blue">파랑</span></td><td>보조 액션 (조회, 미리보기)</td></tr>
+                  <tr><td><code>danger</code></td><td><span class="badge badge-red">빨강</span></td><td>삭제·취소 등 비가역 액션</td></tr>
+                  <tr><td><code>default</code> (생략)</td><td><span class="badge badge-gray">흰색 테두리</span></td><td>일반 액션</td></tr>
+                </tbody>
+              </table>
+
+              <!-- imageCellRenderer -->
+              <div class="guide-subtitle">imageCellRenderer — 이미지 셀</div>
+              <pre><code>{
+  field: 'prodThumb',
+  headerName: '이미지',
+  width: 80,
+  cellRenderer: GridUtils.imageCellRenderer,
+  cellRendererParams: {
+    style: 'square',   // 'circle' | 'square'  (기본값: 'circle')
+    w: 50,             // 가로 px  (기본값: 40)
+    h: 40              // 세로 px  (기본값: 40)
+  }
+}</code></pre>
+
+              <!-- linkCellRenderer -->
+              <div class="guide-subtitle">linkCellRenderer — 링크 셀</div>
+              <pre><code>{
+  field: 'productName',
+  headerName: '상품명',
+  cellRenderer: GridUtils.linkCellRenderer,
+  cellRendererParams: {
+    getUrl: (data) => data.link || '#',   // URL 생성 함수
+    target: '_blank',                      // 링크 target (기본값: '_blank')
+
+    // onClick을 정의하면 href 이동 대신 콜백 실행
+    onClick: (data) => { console.log(data); }
+  }
+}</code></pre>
+            </div>
+
+            <!-- ===================== 6. 전체 예시 ===================== -->
+            <div class="guide-section">
+              <div class="guide-title">6. 전체 예시 — 페이지에서 그리드 만들기</div>
+              <div class="guide-desc">실제 페이지에서 작성하는 최소 코드 패턴입니다.</div>
+              <pre><code>&lt;!-- HTML --&gt;
+&lt;div class="grid-toolbar w-full flex items-center text-sm my-4"&gt;
+  &lt;h3 class="text-lg"&gt;상품 리스트 - 총 N개의 결과&lt;/h3&gt;
+  &lt;div class="ml-auto flex gap-1"&gt;
+    &lt;button onclick="GridToolbar.resetAlign(productGridApi)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer"&gt;정렬 초기화&lt;/button&gt;
+    &lt;button onclick="GridToolbar.resetFilter(productGridApi)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer"&gt;필터 초기화&lt;/button&gt;
+    &lt;button onclick="GridToolbar.resetPinned(productGridApi, this)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer"&gt;컬럼 고정 선택&lt;/button&gt;
+    &lt;button onclick="GridToolbar.columnSelect(productGridApi, this)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer"&gt;컬럼 표시 선택&lt;/button&gt;
+    &lt;button onclick="GridToolbar.csvDown(productGridApi)" class="bg-green-100 hover:bg-green-200 px-3 py-1.5 rounded text-xs cursor-pointer"&gt;CSV 다운로드&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="productGrid" class="w-full h-[500px]"&gt;&lt;/div&gt;</code></pre>
+              <pre><code>// JS
+const columnDefs = [
+  { field: 'id',          headerName: 'ID',    width: 70 },
+  { field: 'productName', headerName: '상품명', flex: 1 },
+  {
+    field: 'salePrice',
+    headerName: '판매가',
+    width: 140,
+    valueFormatter: GridFormatters.currencyFormatter
+  },
+  {
+    field: 'createdAt',
+    headerName: '등록일',
+    width: 180,
+    valueFormatter: GridFormatters.dateFormatter
+  },
+  {
+    colId: 'actions',
+    headerName: '관리',
+    width: 160,
+    sortable: false, filter: false, resizable: false,
+    cellRenderer: GridUtils.actionButtonsCellRenderer,
+    cellRendererParams: {
+      buttons: [
+        { label: '수정', variant: 'primary', onClick: (data) => { location.href = '/edit?id=' + data.id; } },
+        { label: '삭제', variant: 'danger',  onClick: (data) => { if (confirm('삭제?')) { /* API 호출 */ } } },
+      ]
+    }
+  }
+];
+
+const productGridApi = GridCommon.init(document.querySelector('#productGrid'), {
+  columnDefs: columnDefs,
+  rowData: [],   // 서버에서 받아온 데이터 배열
+});</code></pre>
+            </div>
+            <!-- // 컨텐츠 끝 -->
+          </div>
+        </main>
+
+        @@include('@@webRoot/_include/footer.html')
+        @@include('@@webRoot/_include/foot.html')
+        @@include('@@webRoot/_include/modal.html')
+      </div>
+    </div>
+
+    <script src="@@webRoot/js/grid/ag-grid.common.js"></script>
+    <script src="@@webRoot/js/grid/ag-grid.utils.js"></script>
+  </body>
+</html>

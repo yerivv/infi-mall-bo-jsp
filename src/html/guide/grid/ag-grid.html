@@ -21,7 +21,7 @@
                 <div class="ml-auto flex gap-1">
                   <button onclick="GridToolbar.resetAlign(sampleGridApi)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">정렬 초기화</button>
                   <button onclick="GridToolbar.resetFilter(sampleGridApi)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">필터 초기화</button>
-                  <button onclick="GridToolbar.resetPinned(sampleGridApi)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">컬럼 고정 해제</button>
+                  <button onclick="GridToolbar.resetPinned(sampleGridApi, this)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">컬럼 고정 선택</button>
                   <button onclick="GridToolbar.columnSelect(sampleGridApi, this)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">컬럼 표시 선택</button>
                   <button onclick="GridToolbar.csvDown(sampleGridApi)" class="bg-green-100 hover:bg-green-200 px-3 py-1.5 rounded text-xs cursor-pointer">CSV 다운로드</button>
                 </div>
@@ -36,7 +36,7 @@
                 <div class="ml-auto">
                   <button onclick="GridToolbar.resetAlign(sampleGridApi2)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">정렬 초기화</button>
                   <button onclick="GridToolbar.resetFilter(sampleGridApi2)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">필터 초기화</button>
-                  <button onclick="GridToolbar.resetPinned(sampleGridApi2)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">컬럼 고정 해제</button>
+                  <button onclick="GridToolbar.resetPinned(sampleGridApi2, this)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">컬럼 고정 선택</button>
                   <button onclick="GridToolbar.columnSelect(sampleGridApi2, this)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">컬럼 표시 선택</button>
                   <button onclick="GridToolbar.csvDown(sampleGridApi2)" class="bg-green-100 hover:bg-green-200 px-3 py-1.5 rounded text-xs cursor-pointer">CSV 다운로드</button>
                 </div>
@@ -55,7 +55,7 @@
                 <div class="ml-auto">
                   <button onclick="GridToolbar.resetAlign(sampleGridApi3)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">정렬 초기화</button>
                   <button onclick="GridToolbar.resetFilter(sampleGridApi3)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">필터 초기화</button>
-                  <button onclick="GridToolbar.resetPinned(sampleGridApi3)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">컬럼 고정 해제</button>
+                  <button onclick="GridToolbar.resetPinned(sampleGridApi3, this)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">컬럼 고정 선택</button>
                   <button onclick="GridToolbar.columnSelect(sampleGridApi3, this)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">컬럼 표시 선택</button>
                   <button onclick="GridToolbar.csvDown(sampleGridApi3)" class="bg-green-100 hover:bg-green-200 px-3 py-1.5 rounded text-xs cursor-pointer">CSV 다운로드</button>
                 </div>
@@ -63,6 +63,8 @@
               <div id="sampleGrid3" class="w-full h-[500px]"></div>
             </div>
             <!-- // 컨텐츠 끝 -->
+
+            
           </div>
         </main>
     

@@ -52,10 +52,67 @@ const GridToolbar = {
     if (!this._validate(gridApi)) return;
     gridApi.setFilterModel(null);
   },
-  // 컬럼 고정 해제
-  resetPinned: function(gridApi) {
+  // 컬럼 고정 선택 패널
+  resetPinned: function(gridApi, triggerEl) {
     if (!this._validate(gridApi)) return;
-    gridApi.applyColumnState({ defaultState: { pinned: null } });
+
+    const existingPanel = document.getElementById('_gridPinnedPanel');
+    if (existingPanel) { existingPanel.remove(); return; }
+
+    const columns = gridApi.getColumns() || [];
+
+    const panel = document.createElement('div');
+    panel.id = '_gridPinnedPanel';
+    panel.className = 'absolute z-[9999] bg-white border border-slate-200 rounded-lg shadow-lg py-2 min-w-40 max-h-80 overflow-y-auto';
+
+    const listCheckbox = document.createElement('div');
+    listCheckbox.className = 'max-h-[200px] overflow-hidden overflow-y-auto';
+    const checkboxes = [];
+    columns.forEach(col => {
+      const headerName = col.getColDef().headerName || col.getColId();
+      const colId = col.getColId();
+      if (!headerName || colId === 'dragColumn') return;
+
+      const row = document.createElement('label');
+      row.className = 'flex items-center gap-2 px-3.5 py-1.5 cursor-pointer text-xs whitespace-nowrap hover:bg-slate-50';
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = !!col.getPinned();
+      cb.onchange = () => gridApi.applyColumnState({ state: [{ colId, pinned: cb.checked ? 'left' : null }] });
+      checkboxes.push(cb);
+
+      row.appendChild(cb);
+      row.appendChild(document.createTextNode(headerName));
+      listCheckbox.appendChild(row);
+    });
+    panel.appendChild(listCheckbox);
+
+    const divider = document.createElement('hr');
+    divider.className = 'border-0 border-t border-slate-200 my-1.5';
+    panel.appendChild(divider);
+
+    const resetBtn = document.createElement('button');
+    resetBtn.textContent = '전체 초기화';
+    resetBtn.className = 'block w-[calc(100%-28px)] mx-3.5 py-1 text-xs text-center bg-slate-100 hover:bg-slate-200 rounded cursor-pointer border-0';
+    resetBtn.onclick = () => {
+      gridApi.applyColumnState({ defaultState: { pinned: null } });
+      checkboxes.forEach(cb => cb.checked = false);
+    };
+    panel.appendChild(resetBtn);
+
+    const rect = (triggerEl || document.body).getBoundingClientRect();
+    panel.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+    panel.style.left = (rect.left + window.scrollX) + 'px';
+    document.body.appendChild(panel);
+
+    const close = (e) => {
+      if (!panel.contains(e.target) && e.target !== triggerEl) {
+        panel.remove();
+        document.removeEventListener('mousedown', close);
+      }
+    };
+    setTimeout(() => document.addEventListener('mousedown', close), 0);
   },
   // 컬럼 표시 선택 (커뮤니티용 커스텀 패널)
   columnSelect: function(gridApi, triggerEl) {
@@ -68,35 +125,67 @@ const GridToolbar = {
 
     const panel = document.createElement('div');
     panel.id = '_gridColumnPanel';
-    panel.style.cssText = 'position:absolute;z-index:9999;background:#fff;border:1px solid #e2e8f0;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);padding:8px 0;min-width:160px;max-height:320px;overflow-y:auto;';
+    panel.className = 'absolute z-[9999] bg-white border border-slate-200 rounded-lg shadow-lg py-2 min-w-40 max-h-80 overflow-y-auto';
 
+    const listCheckbox = document.createElement('div');
+    listCheckbox.className = 'max-h-[200px] overflow-hidden overflow-y-auto';
+    const checkboxes = [];
+    const colIds = [];
     columns.forEach(col => {
       const headerName = col.getColDef().headerName || col.getColId();
       const colId = col.getColId();
       if (!headerName || colId === 'dragColumn') return;
 
       const row = document.createElement('label');
-      row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 14px;cursor:pointer;font-size:12px;white-space:nowrap;';
-      row.onmouseenter = () => row.style.background = '#f8fafc';
-      row.onmouseleave = () => row.style.background = '';
+      row.className = 'flex items-center gap-2 px-3.5 py-1.5 cursor-pointer text-xs whitespace-nowrap hover:bg-slate-50';
 
       const cb = document.createElement('input');
       cb.type = 'checkbox';
       cb.checked = col.isVisible();
       cb.onchange = () => gridApi.setColumnsVisible([colId], cb.checked);
+      checkboxes.push(cb);
+      colIds.push(colId);
 
       row.appendChild(cb);
       row.appendChild(document.createTextNode(headerName));
-      panel.appendChild(row);
+      listCheckbox.appendChild(row);
     });
+    panel.appendChild(listCheckbox);
 
-    // 버튼 기준으로 위치 계산
+    const divider = document.createElement('hr');
+    divider.className = 'border-0 border-t border-slate-200 my-1.5';
+    panel.appendChild(divider);
+
+    const btnWrap = document.createElement('div');
+    btnWrap.className = 'flex gap-1.5 px-3.5';
+
+    const btnClass = 'flex-1 py-1 text-xs text-center bg-slate-100 hover:bg-slate-200 rounded cursor-pointer border-0';
+
+    const selectAllBtn = document.createElement('button');
+    selectAllBtn.textContent = '전체 선택';
+    selectAllBtn.className = btnClass;
+    selectAllBtn.onclick = () => {
+      gridApi.setColumnsVisible(colIds, true);
+      checkboxes.forEach(cb => cb.checked = true);
+    };
+
+    const deselectAllBtn = document.createElement('button');
+    deselectAllBtn.textContent = '선택 해제';
+    deselectAllBtn.className = btnClass;
+    deselectAllBtn.onclick = () => {
+      gridApi.setColumnsVisible(colIds, false);
+      checkboxes.forEach(cb => cb.checked = false);
+    };
+
+    btnWrap.appendChild(selectAllBtn);
+    btnWrap.appendChild(deselectAllBtn);
+    panel.appendChild(btnWrap);
+
     const rect = (triggerEl || document.body).getBoundingClientRect();
     panel.style.top = (rect.bottom + window.scrollY + 4) + 'px';
     panel.style.left = (rect.left + window.scrollX) + 'px';
     document.body.appendChild(panel);
 
-    // 외부 클릭 시 닫기
     const close = (e) => {
       if (!panel.contains(e.target) && e.target !== triggerEl) {
         panel.remove();
