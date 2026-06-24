@@ -1,12 +1,11 @@
 if (typeof tui !== 'undefined' && tui.Grid) {
-  tui.Grid.setLanguage('ko');
 
   tui.Grid.applyTheme('clean', {
     cell: {
       normal: {
         background: '#ffffff',
         border: '#e5e7eb', // Tailwind gray-200
-        showVerticalBorder: false // 트렌디한 수평선 위주 레이아웃
+        showVerticalBorder: false,
       },
       header: {
         background: '#f9fafb', // Tailwind gray-50
@@ -15,21 +14,12 @@ if (typeof tui !== 'undefined' && tui.Grid) {
         fontWeight: '600'
       },
       selectedHead: { background: '#f3f4f6' },
-      focused: { border: '#4f46e5' } // 인디고 포인트 포커스
+      focused: { border: '#666' } // 인디고 포인트 포커스
     }
   });
 }
 
 const TuiGridCommon = {
-  /**
-   * 기본 설정을 포함한 TUI Grid 생성
-   * @param {Object} params 
-   * @param {HTMLElement|string} params.el - 마운트할 엘리먼트 또는 ID
-   * @param {Array} params.columns - 컬럼 정의 배열
-   * @param {Array} [params.data=[]] - 초기 데이터
-   * @param {Object} [params.customOptions={}] - 화면별 개별 확장 옵션
-   * @returns {tui.Grid} 생성된 TUI Grid 인스턴스
-   */
   createGrid({ el, columns, data = [], customOptions = {} }) {
     const targetEl = typeof el === 'string' ? document.getElementById(el) : el;
 
@@ -38,7 +28,6 @@ const TuiGridCommon = {
       return null;
     }
 
-    // 백오피스 표준 기본 옵션 정의
     const defaultOptions = {
       el: targetEl,
       data: data,
@@ -48,18 +37,43 @@ const TuiGridCommon = {
       scrollX: true,
       scrollY: false,
       columnOptions: {
-        resizable: true // 기본적으로 모든 컬럼 리사이즈 허용
+        resizable: true
       },
       pageOptions: {
+        useClient: true,
         perPage: 10
       }
     };
 
-    // 딥 카피 혹은 깊은 병합이 필요한 특수 옵션 외에는 기본 shallow merge 수행
     const finalOptions = Object.assign({}, defaultOptions, customOptions);
 
-    // 인스턴스 생성 및 반환
     return new tui.Grid(finalOptions);
+  },
+
+  // perPage select 바인딩 — toolbar 내 <select class="tui-perpage-select"> 와 연결
+  bindPerPage(gridInstance, toolbarEl, sizes = [10, 20, 50, 100]) {
+    if (!gridInstance || !toolbarEl) return;
+
+    const select = document.createElement('select');
+    select.className = 'tui-perpage-select border border-slate-200 rounded text-xs px-2 py-1.5 bg-white cursor-pointer';
+
+    const currentPerPage = gridInstance.store
+      ? gridInstance.store.data.pageOptions.perPage
+      : sizes[0];
+
+    sizes.forEach(function(n) {
+      const opt = document.createElement('option');
+      opt.value = n;
+      opt.textContent = n + '줄 보기';
+      if (n === currentPerPage) opt.selected = true;
+      select.appendChild(opt);
+    });
+
+    select.addEventListener('change', function() {
+      gridInstance.setPerPage(Number(select.value));
+    });
+
+    toolbarEl.appendChild(select);
   }
 };
 

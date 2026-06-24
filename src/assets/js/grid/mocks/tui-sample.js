@@ -1,20 +1,15 @@
-/**
- * @file tui-sample.js
- * @description TUI Grid 컴포넌트 확장 바인딩 예시
- */
-
 document.addEventListener('DOMContentLoaded', () => {
   
   // TUI Grid 문법 구조에 맞는 컬럼 선언 (field 대신 name 사용)
   const tuiColumnDefs = [
     { header: 'ID', name: 'id', width: 70, align: 'center' },
-    { header: '상품명', name: 'productName', minWidth: 200, align: 'left' },
+    { header: '상품명', name: 'productName', minWidth: 200, align: 'left', filter: { type: 'text', showApplyBtn: true, showClearBtn: true }},
     { 
       header: '정가', 
       name: 'originalPrice', 
       width: 140, 
       align: 'right',
-      formatter: TuiGridUtils.formatCurrency // 설계해 둔 천단위 콤마 유틸 바인딩
+      formatter: TuiGridUtils.formatCurrency
     },
     { 
       header: '할인율', 

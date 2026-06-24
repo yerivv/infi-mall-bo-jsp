@@ -12,28 +12,69 @@
 
         <main id="container" class="flex min-h-px w-full grow gap-4">
           <div class="w-full min-w-[1200px] p-7.5">
-            <h2 class="text-2xl font-bold mb-4">TUI-Grid</h2>
+            <!-- 컨텐츠 시작 -->
+            <h2 class="text-2xl font-bold mb-4">TUI Grid</h2>
 
+            <!-- ===== 1. 기본 리스트 ===== -->
             <div class="mt-10">
-              <div class="grid-toolbar w-full flex items-center text-sm my-4">
-                <h3 class="text-lg">기본 리스트 - 총 N개의 결과</h3>
+              <div id="toolbar1" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
+                <h3 class="text-lg font-semibold">기본 리스트</h3>
+                <span class="ml-1 text-slate-400 text-xs">포매터 / 정렬 / 컬럼 리사이즈</span>
+                <div class="ml-auto flex gap-1"></div>
               </div>
-              <div id="tuiGrid" class="w-full"></div>
+              <div id="tuiGrid1" class="w-full"></div>
             </div>
 
-            <div class="mt-10">
-              <div class="grid-toolbar w-full flex items-center text-sm my-4">
-                <h3 class="text-lg">선택 리스트 - 총 N개의 결과</h3>
+            <!-- ===== 2. 체크박스 선택 리스트 ===== -->
+            <div class="mt-14">
+              <div id="toolbar2" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
+                <h3 class="text-lg font-semibold">체크박스 선택 리스트</h3>
+                <span class="ml-1 text-slate-400 text-xs">rowHeaders · check 이벤트</span>
+                <span id="tuiCheckedCount" class="text-slate-500">선택 0개</span>
+                <div class="ml-auto flex gap-1">
+                  <button id="btnTuiCheckAll"   class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">전체 선택</button>
+                  <button id="btnTuiUncheckAll" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">전체 해제</button>
+                  <button id="btnTuiGetChecked" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">선택 항목 확인</button>
+                </div>
               </div>
-              <div id="sampleGrid2" class="w-full"></div>
+              <div id="tuiGrid2" class="w-full"></div>
             </div>
 
-            <div class="mt-10">
-              <div class="grid-toolbar w-full flex items-center text-sm my-4">
-                <h3 class="text-lg">순서 변경 리스트 - 총 N개의 결과</h3>
+            <!-- ===== 3. 필터 리스트 ===== -->
+            <div class="mt-14">
+              <div id="toolbar3" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
+                <h3 class="text-lg font-semibold">필터 리스트</h3>
+                <span class="ml-1 text-slate-400 text-xs">text / select 필터</span>
+                <div class="ml-auto flex gap-1">
+                  <button id="btnTuiResetFilter" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">필터 초기화</button>
+                </div>
               </div>
-              <div id="sampleGrid3" class="w-full"></div>
+              <div id="tuiGrid3" class="w-full"></div>
             </div>
+
+            <!-- ===== 4. 인라인 편집 리스트 ===== -->
+            <div class="mt-14">
+              <div id="toolbar4" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
+                <h3 class="text-lg font-semibold">인라인 편집 리스트</h3>
+                <span class="ml-1 text-slate-400 text-xs">셀 클릭 시 text / select 편집</span>
+                <div class="ml-auto flex gap-1">
+                  <button id="btnTuiGetModified" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">변경 내역 확인</button>
+                  <button id="btnTuiResetEdit"   class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">초기화</button>
+                </div>
+              </div>
+              <div id="tuiGrid4" class="w-full"></div>
+            </div>
+
+            <!-- ===== 5. 페이지네이션 리스트 ===== -->
+            <div class="mt-14">
+              <div id="toolbar5" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
+                <h3 class="text-lg font-semibold">페이지네이션 리스트</h3>
+                <span class="ml-1 text-slate-400 text-xs">pageOptions · perPage 설정</span>
+                <div class="ml-auto flex gap-1"></div>
+              </div>
+              <div id="tuiGrid5" class="w-full"></div>
+            </div>
+            <!-- // 컨텐츠 끝 -->
           </div>
         </main>
 
@@ -45,9 +86,200 @@
 
     <script src="@@webRoot/js/grid/tui-grid.common.js"></script>
     <script src="@@webRoot/js/grid/tui-grid.utils.js"></script>
-    <script src="@@webRoot/js/grid/mocks/tui-sample.js"></script>
+    <script src="@@webRoot/js/grid/mocks/tui-sample-data.js"></script>
 
     <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+      // ──────────────────────────────────────────
+      // 공통 컬럼 (기본 + 체크박스 그리드에서 재사용)
+      // ──────────────────────────────────────────
+      const baseColumns = [
+        { header: 'ID',       name: 'id',            width: 60,  align: 'center', sortable: true },
+        { header: '상품명',   name: 'productName',   minWidth: 180, sortable: true },
+        { header: '카테고리', name: 'category',      width: 110, align: 'center', sortable: true },
+        { header: '판매상태', name: 'status',        width: 100, align: 'center', sortable: true },
+        { header: '정가',     name: 'originalPrice', width: 120, align: 'right',  sortable: true, formatter: TuiGridUtils.formatCurrency },
+        { header: '할인율',   name: 'discountRate',  width: 90,  align: 'center', sortable: true, formatter: function({ value }) { return value + '%'; } },
+        { header: '판매가',   name: 'salePrice',     width: 120, align: 'right',  sortable: true, formatter: TuiGridUtils.formatCurrency },
+        { header: '재고',     name: 'stock',         width: 80,  align: 'right',  sortable: true },
+        { header: '등록일',   name: 'createdAt',     width: 110, align: 'center', sortable: true, formatter: TuiGridUtils.formatDate },
+      ];
+
+      // ──────────────────────────────────────────
+      // 1. 기본 리스트
+      // ──────────────────────────────────────────
+      const grid1 = TuiGridCommon.createGrid({
+        el: 'tuiGrid1',
+        columns: baseColumns,
+        data: tuiSampleData,
+        customOptions: { bodyHeight: 'auto' }
+      });
+      TuiGridCommon.bindPerPage(grid1, document.querySelector('#toolbar1 .ml-auto'));
+
+      // ──────────────────────────────────────────
+      // 2. 체크박스 선택 리스트
+      // ──────────────────────────────────────────
+      const grid2 = TuiGridCommon.createGrid({
+        el: 'tuiGrid2',
+        columns: baseColumns,
+        data: tuiSampleData,
+        customOptions: {
+          bodyHeight: 'auto',
+          rowHeaders: [{ type: 'rowNum' }, { type: 'checkbox' }],
+        }
+      });
+
+      const countEl = document.getElementById('tuiCheckedCount');
+      function updateCount() {
+        const n = grid2.getCheckedRows().length;
+        countEl.textContent = '선택 ' + n + '개';
+      }
+      grid2.on('check',     updateCount);
+      grid2.on('uncheck',   updateCount);
+      grid2.on('checkAll',  updateCount);
+      grid2.on('uncheckAll', updateCount);
+
+      TuiGridCommon.bindPerPage(grid2, document.querySelector('#toolbar2 .ml-auto'));
+      document.getElementById('btnTuiCheckAll').onclick   = function() { grid2.checkAll(); };
+      document.getElementById('btnTuiUncheckAll').onclick = function() { grid2.uncheckAll(); };
+      document.getElementById('btnTuiGetChecked').onclick = function() {
+        const rows = grid2.getCheckedRows();
+        console.log('선택된 행:', rows);
+        alert('선택 ' + rows.length + '개 (콘솔 확인)');
+      };
+
+      // ──────────────────────────────────────────
+      // 3. 필터 리스트
+      // ──────────────────────────────────────────
+      const filterColumns = [
+        { header: 'ID',       name: 'id',            width: 60,  align: 'center', sortable: true },
+        {
+          header: '상품명', name: 'productName', minWidth: 180, sortable: true,
+          filter: { type: 'text', showApplyBtn: true, showClearBtn: true }
+        },
+        {
+          header: '카테고리', name: 'category', width: 120, align: 'center', sortable: true,
+          filter: { type: 'select' }
+        },
+        {
+          header: '판매상태', name: 'status', width: 100, align: 'center', sortable: true,
+          filter: { type: 'select' }
+        },
+        { header: '정가',   name: 'originalPrice', width: 120, align: 'right',  sortable: true, formatter: TuiGridUtils.formatCurrency },
+        { header: '판매가', name: 'salePrice',     width: 120, align: 'right',  sortable: true, formatter: TuiGridUtils.formatCurrency },
+        { header: '재고',   name: 'stock',         width: 80,  align: 'right',  sortable: true },
+        { header: '등록일', name: 'createdAt',     width: 110, align: 'center', sortable: true, formatter: TuiGridUtils.formatDate },
+      ];
+
+      const grid3 = TuiGridCommon.createGrid({
+        el: 'tuiGrid3',
+        columns: filterColumns,
+        data: tuiSampleData,
+        customOptions: { bodyHeight: 'auto' }
+      });
+
+      TuiGridCommon.bindPerPage(grid3, document.querySelector('#toolbar3 .ml-auto'));
+      document.getElementById('btnTuiResetFilter').onclick = function() {
+        grid3.clearFilter('productName');
+        grid3.clearFilter('category');
+        grid3.clearFilter('status');
+      };
+
+      // ──────────────────────────────────────────
+      // 4. 인라인 편집 리스트
+      // ──────────────────────────────────────────
+      const editColumns = [
+        { header: 'ID',       name: 'id',       width: 60, align: 'center' },
+        {
+          header: '상품명', name: 'productName', minWidth: 180,
+          editor: { type: 'text' }
+        },
+        {
+          header: '카테고리', name: 'category', width: 120, align: 'center',
+          editor: {
+            type: 'select',
+            options: {
+              listItems: [
+                { text: '전자제품', value: '전자제품' },
+                { text: '생활용품', value: '생활용품' },
+                { text: '패션잡화', value: '패션잡화' },
+              ]
+            }
+          }
+        },
+        {
+          header: '판매상태', name: 'status', width: 110, align: 'center',
+          editor: {
+            type: 'select',
+            options: {
+              listItems: [
+                { text: '판매중',   value: '판매중' },
+                { text: '품절',     value: '품절' },
+                { text: '판매중지', value: '판매중지' },
+              ]
+            }
+          }
+        },
+        { header: '정가',   name: 'originalPrice', width: 120, align: 'right',  formatter: TuiGridUtils.formatCurrency },
+        { header: '판매가', name: 'salePrice',     width: 120, align: 'right',  formatter: TuiGridUtils.formatCurrency },
+        {
+          header: '재고', name: 'stock', width: 80, align: 'right',
+          editor: { type: 'text' }
+        },
+        { header: '등록일', name: 'createdAt', width: 110, align: 'center', formatter: TuiGridUtils.formatDate },
+      ];
+
+      const editOriginalData = JSON.parse(JSON.stringify(tuiSampleData));
+
+      const grid4 = TuiGridCommon.createGrid({
+        el: 'tuiGrid4',
+        columns: editColumns,
+        data: tuiSampleData,
+        customOptions: {
+          bodyHeight: 'auto',
+          editingEvent: 'click',
+        }
+      });
+
+      TuiGridCommon.bindPerPage(grid4, document.querySelector('#toolbar4 .ml-auto'));
+      document.getElementById('btnTuiGetModified').onclick = function() {
+        const modified = grid4.getModifiedRows();
+        console.log('변경 내역:', modified);
+        const total = modified.createdRows.length + modified.updatedRows.length + modified.deletedRows.length;
+        alert('변경 ' + total + '건 (콘솔 확인)');
+      };
+
+      document.getElementById('btnTuiResetEdit').onclick = function() {
+        grid4.resetData(JSON.parse(JSON.stringify(editOriginalData)));
+      };
+
+      // ──────────────────────────────────────────
+      // 5. 페이지네이션 리스트
+      // ──────────────────────────────────────────
+      const grid5 = TuiGridCommon.createGrid({
+        el: 'tuiGrid5',
+        columns: [
+          { header: 'ID',       name: 'id',          width: 60,  align: 'center', sortable: true },
+          { header: '상품명',   name: 'productName', minWidth: 200, sortable: true },
+          { header: '카테고리', name: 'category',    width: 120, align: 'center', sortable: true },
+          { header: '판매상태', name: 'status',      width: 100, align: 'center', sortable: true },
+          { header: '판매가',   name: 'salePrice',   width: 130, align: 'right',  sortable: true, formatter: TuiGridUtils.formatCurrency },
+          { header: '재고',     name: 'stock',       width: 80,  align: 'right',  sortable: true },
+          { header: '등록일',   name: 'createdAt',   width: 110, align: 'center', sortable: true, formatter: TuiGridUtils.formatDate },
+        ],
+        data: tuiPagData,
+        customOptions: {
+          bodyHeight: 'auto',
+          pageOptions: {
+            useClient: true,
+            perPage: 5,
+          }
+        }
+      });
+      TuiGridCommon.bindPerPage(grid5, document.querySelector('#toolbar5 .ml-auto'), [5, 10, 20, 50]);
+
+    });
     </script>
 
   </body>
