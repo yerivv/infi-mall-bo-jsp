@@ -1,6 +1,6 @@
 const columnDefs = [
   { field: 'id', headerName: 'ID', width: 70 },
-  { field: 'productName', headerName: '상품명', flex: 1, },
+  { field: 'productName', headerName: '상품명', flex: 1, filter: true, },
   { 
       field: 'originalPrice', 
       headerName: '정가', 

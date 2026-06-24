@@ -18,12 +18,12 @@
             <div class="mt-10">
               <div class="grid-toolbar w-full flex items-center text-sm my-4">
                 <h3 class="text-lg">기본 리스트 - 총 4개의 결과</h3>
-                <div class="ml-auto">
-                  정렬 초기화
-                  필터 초기화
-                  컬럼 고정 해제
-                  컬럼 표시 선택
-                  CSV 다운로드
+                <div class="ml-auto flex gap-1">
+                  <button onclick="GridToolbar.resetAlign(sampleGridApi)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">정렬 초기화</button>
+                  <button onclick="GridToolbar.resetFilter(sampleGridApi)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">필터 초기화</button>
+                  <button onclick="GridToolbar.resetPinned(sampleGridApi)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">컬럼 고정 해제</button>
+                  <button onclick="GridToolbar.columnSelect(sampleGridApi, this)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">컬럼 표시 선택</button>
+                  <button onclick="GridToolbar.csvDown(sampleGridApi)" class="bg-green-100 hover:bg-green-200 px-3 py-1.5 rounded text-xs cursor-pointer">CSV 다운로드</button>
                 </div>
               </div>
               <div id="sampleGrid" class="w-full h-[500px]"></div>
@@ -34,11 +34,11 @@
                 <h3 class="text-lg">선택 리스트 - 총 4개의 결과</h3>
                 <div>선택 0개</div>
                 <div class="ml-auto">
-                  정렬 초기화
-                  필터 초기화
-                  컬럼 고정 해제
-                  컬럼 표시 선택
-                  CSV 다운로드
+                  <button onclick="GridToolbar.resetAlign(sampleGridApi2)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">정렬 초기화</button>
+                  <button onclick="GridToolbar.resetFilter(sampleGridApi2)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">필터 초기화</button>
+                  <button onclick="GridToolbar.resetPinned(sampleGridApi2)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">컬럼 고정 해제</button>
+                  <button onclick="GridToolbar.columnSelect(sampleGridApi2, this)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">컬럼 표시 선택</button>
+                  <button onclick="GridToolbar.csvDown(sampleGridApi2)" class="bg-green-100 hover:bg-green-200 px-3 py-1.5 rounded text-xs cursor-pointer">CSV 다운로드</button>
                 </div>
               </div>
               <div id="sampleGrid2" class="w-full h-[500px]"></div>
@@ -48,23 +48,16 @@
               <div class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
                 <h3 class="text-lg">순서 변경 리스트 - 총 4개의 결과</h3>
                 <div class="flex items-center gap-2">
-                  <button id="btnEditOrder" class="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded text-xs cursor-pointer">
-                      순서 변경
-                  </button>
-                  
-                  <button id="btnSaveOrder" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded text-xs cursor-pointer">
-                      확인
-                  </button>
-                  <button id="btnCancelOrder" class="hidden bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded text-xs cursor-pointer">
-                      취소
-                  </button>
+                  <button onclick="GridToolbar.editRow(sampleGridApi3, this)" class="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded text-xs cursor-pointer">전시 순서 변경</button>
+                  <button id="btnSaveOrder" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded text-xs cursor-pointer">변경</button>
+                  <button id="btnCancelOrder" class="hidden bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded text-xs cursor-pointer">취소</button>
                 </div>
                 <div class="ml-auto">
-                  정렬 초기화
-                  필터 초기화
-                  컬럼 고정 해제
-                  컬럼 표시 선택
-                  CSV 다운로드
+                  <button onclick="GridToolbar.resetAlign(sampleGridApi3)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">정렬 초기화</button>
+                  <button onclick="GridToolbar.resetFilter(sampleGridApi3)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">필터 초기화</button>
+                  <button onclick="GridToolbar.resetPinned(sampleGridApi3)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">컬럼 고정 해제</button>
+                  <button onclick="GridToolbar.columnSelect(sampleGridApi3, this)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">컬럼 표시 선택</button>
+                  <button onclick="GridToolbar.csvDown(sampleGridApi3)" class="bg-green-100 hover:bg-green-200 px-3 py-1.5 rounded text-xs cursor-pointer">CSV 다운로드</button>
                 </div>
               </div>
               <div id="sampleGrid3" class="w-full h-[500px]"></div>
@@ -84,6 +77,9 @@
     <script src="@@webRoot/js/grid/mocks/sample.js"></script>
     <script src="@@webRoot/js/grid/mocks/sample2.js"></script>
     <script src="@@webRoot/js/grid/mocks/sample3.js"></script>
+
+    <script>
+    </script>
 
   </body>
 </html>
