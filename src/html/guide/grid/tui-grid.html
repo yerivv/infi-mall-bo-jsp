@@ -18,9 +18,11 @@
             <!-- ===== 1. 기본 리스트 ===== -->
             <div class="mt-10">
               <div id="toolbar1" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
-                <h3 class="text-lg font-semibold">기본 리스트</h3>
+                <h3 class="text-lg font-semibold">01. 기본 리스트</h3>
                 <span class="ml-1 text-slate-400 text-xs">포매터 / 정렬 / 컬럼 리사이즈</span>
-                <div class="ml-auto flex gap-1"></div>
+                <div class="ml-auto flex gap-1">
+                  <button data-grid-id="tuiGrid1" onclick="TuiGridToolbar.resetSort(this)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">정렬 초기화</button>
+                </div>
               </div>
               <div id="tuiGrid1" class="w-full"></div>
             </div>
@@ -28,7 +30,7 @@
             <!-- ===== 2. 체크박스 선택 리스트 ===== -->
             <div class="mt-14">
               <div id="toolbar2" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
-                <h3 class="text-lg font-semibold">체크박스 선택 리스트</h3>
+                <h3 class="text-lg font-semibold">02. 체크박스 선택 리스트</h3>
                 <span class="ml-1 text-slate-400 text-xs">rowHeaders · check 이벤트</span>
                 <span id="tuiCheckedCount" class="text-slate-500">선택 0개</span>
                 <div class="ml-auto flex gap-1">
@@ -43,7 +45,7 @@
             <!-- ===== 3. 필터 리스트 ===== -->
             <div class="mt-14">
               <div id="toolbar3" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
-                <h3 class="text-lg font-semibold">필터 리스트</h3>
+                <h3 class="text-lg font-semibold">03. 필터 리스트</h3>
                 <span class="ml-1 text-slate-400 text-xs">text / select 필터</span>
                 <div class="ml-auto flex gap-1">
                   <button id="btnTuiResetFilter" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">필터 초기화</button>
@@ -55,7 +57,7 @@
             <!-- ===== 4. 인라인 편집 리스트 ===== -->
             <div class="mt-14">
               <div id="toolbar4" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
-                <h3 class="text-lg font-semibold">인라인 편집 리스트</h3>
+                <h3 class="text-lg font-semibold">04. 인라인 편집 리스트</h3>
                 <span class="ml-1 text-slate-400 text-xs">셀 클릭 시 text / select 편집</span>
                 <div class="ml-auto flex gap-1">
                   <button id="btnTuiGetModified" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">변경 내역 확인</button>
@@ -68,11 +70,25 @@
             <!-- ===== 5. 페이지네이션 리스트 ===== -->
             <div class="mt-14">
               <div id="toolbar5" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
-                <h3 class="text-lg font-semibold">페이지네이션 리스트</h3>
+                <h3 class="text-lg font-semibold">05. 페이지네이션 리스트</h3>
                 <span class="ml-1 text-slate-400 text-xs">pageOptions · perPage 설정</span>
                 <div class="ml-auto flex gap-1"></div>
               </div>
               <div id="tuiGrid5" class="w-full"></div>
+            </div>
+
+            <!-- ===== 6. 전시 순서 변경 ===== -->
+            <div class="mt-14">
+              <div id="toolbar6" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
+                <h3 class="text-lg font-semibold">06. 전시 순서 변경</h3>
+                <span id="tuiOrderHint" class="ml-1 text-slate-400 text-xs">드래그 핸들로 순서 변경</span>
+                <div class="ml-auto flex gap-1">
+                  <button id="btnTuiEditOrder"   class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">순서 변경</button>
+                  <button id="btnTuiSaveOrder"   class="hidden bg-master-100 hover:opacity-80 text-white px-3 py-1.5 rounded text-xs cursor-pointer">저장</button>
+                  <button id="btnTuiCancelOrder" class="hidden bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">취소</button>
+                </div>
+              </div>
+              <div id="tuiGrid6" class="w-full"></div>
             </div>
             <!-- // 컨텐츠 끝 -->
           </div>
@@ -117,6 +133,8 @@
       });
       TuiGridCommon.bindPerPage(grid1, document.querySelector('#toolbar1 .ml-auto'));
 
+      window.grid1 = grid1;
+
       // ──────────────────────────────────────────
       // 2. 체크박스 선택 리스트
       // ──────────────────────────────────────────
@@ -156,7 +174,11 @@
         { header: 'ID',       name: 'id',            width: 60,  align: 'center', sortable: true },
         {
           header: '상품명', name: 'productName', minWidth: 180, sortable: true,
-          filter: { type: 'text', showApplyBtn: true, showClearBtn: true }
+          filter: { 
+            type: 'text', 
+            showApplyBtn: true, 
+            showClearBtn: true 
+          }
         },
         {
           header: '카테고리', name: 'category', width: 120, align: 'center', sortable: true,
@@ -181,9 +203,9 @@
 
       TuiGridCommon.bindPerPage(grid3, document.querySelector('#toolbar3 .ml-auto'));
       document.getElementById('btnTuiResetFilter').onclick = function() {
-        grid3.clearFilter('productName');
-        grid3.clearFilter('category');
-        grid3.clearFilter('status');
+        grid3.unfilter('productName');
+        grid3.unfilter('category');
+        grid3.unfilter('status');
       };
 
       // ──────────────────────────────────────────
@@ -278,6 +300,96 @@
         }
       });
       TuiGridCommon.bindPerPage(grid5, document.querySelector('#toolbar5 .ml-auto'), [5, 10, 20, 50]);
+
+      // ──────────────────────────────────────────
+      // 6. 전시 순서 변경
+      // ──────────────────────────────────────────
+      const dragData = tuiSampleData.map(function(row, i) {
+        return Object.assign({}, row, { displayOrder: i + 1 });
+      });
+
+      const grid6 = TuiGridCommon.createGrid({
+        el: 'tuiGrid6',
+        columns: [
+          { header: '순서',     name: 'displayOrder', width: 65,  align: 'center' },
+          { header: '상품명',   name: 'productName',  minWidth: 180 },
+          { header: '카테고리', name: 'category',     width: 110, align: 'center' },
+          { header: '판매상태', name: 'status',       width: 100, align: 'center' },
+          { header: '판매가',   name: 'salePrice',    width: 120, align: 'right', formatter: TuiGridUtils.formatCurrency },
+          { header: '재고',     name: 'stock',        width: 80,  align: 'right' },
+        ],
+        data: dragData,
+        customOptions: {
+          bodyHeight: 'auto',
+          draggable: true,
+          //rowHeaders: ['draggable'],
+          pageOptions: {},
+        }
+      });
+
+      let isDragMode = false;
+      let backupData = null;
+
+      const btnEdit   = document.getElementById('btnTuiEditOrder');
+      const btnSave   = document.getElementById('btnTuiSaveOrder');
+      const btnCancel = document.getElementById('btnTuiCancelOrder');
+      const hintEl    = document.getElementById('tuiOrderHint');
+
+      grid6.hideColumn('_draggable');
+
+      function enterEditMode() {
+        isDragMode = true;
+        backupData = JSON.parse(JSON.stringify(grid6.getData()));
+        grid6.showColumn('_draggable');
+        btnEdit.classList.add('hidden');
+        btnSave.classList.remove('hidden');
+        btnCancel.classList.remove('hidden');
+        hintEl.textContent = '행을 드래그해서 순서를 변경한 후 저장하세요';
+      }
+
+      function exitEditMode() {
+        isDragMode = false;
+        backupData = null;
+        grid6.hideColumn('_draggable');
+        btnEdit.classList.remove('hidden');
+        btnSave.classList.add('hidden');
+        btnCancel.classList.add('hidden');
+        hintEl.textContent = '드래그 핸들로 순서 변경';
+      }
+
+      // 편집 모드가 아닐 때 드래그 시작 자체를 차단
+      grid6.on('dragStart', function(ev) {
+        if (!isDragMode) ev.stop();
+      });
+
+      // drop 후 moveRow 가 완료된 시점에 순서 번호 갱신
+      grid6.on('drop', function() {
+        setTimeout(function() {
+          const rows = grid6.getData();
+          rows.forEach(function(row, i) {
+            grid6.setValue(row.rowKey, 'displayOrder', i + 1);
+          });
+        }, 0);
+      });
+
+      btnEdit.onclick = function() {
+        enterEditMode();
+      };
+
+      btnSave.onclick = function() {
+        const rows = grid6.getData();
+        const orderList = rows.map(function(row) {
+          return { displayOrder: row.displayOrder, id: row.id, productName: row.productName };
+        });
+        console.log('전시 순서 저장:', orderList);
+        alert('순서 저장 ' + orderList.length + '건 (콘솔 확인)');
+        exitEditMode();
+      };
+
+      btnCancel.onclick = function() {
+        grid6.resetData(backupData);
+        exitEditMode();
+      };
 
     });
     </script>

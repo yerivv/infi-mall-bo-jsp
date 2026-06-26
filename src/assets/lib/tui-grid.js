@@ -6393,10 +6393,12 @@ function hideColumn(store, columnName) {
     filter_1.unfilter(store, columnName);
     sort_1.unsort(store, columnName);
     setColumnsHiddenValue(column, columnName, true);
+    observable_1.notify(column, 'allColumns');
 }
 exports.hideColumn = hideColumn;
 function showColumn(store, columnName) {
     setColumnsHiddenValue(store.column, columnName, false);
+    observable_1.notify(store.column, 'allColumns');
     rowSpan_1.updateRowSpan(store);
 }
 exports.showColumn = showColumn;
@@ -18771,6 +18773,10 @@ var ContainerComp = /** @class */ (function (_super) {
             var pos = { left: ev.clientX - offsetLeft, top: ev.clientY - offsetTop };
             var _b = dom_1.getCoordinateWithOffset(ev.pageX, ev.pageY), pageX = _b[0], pageY = _b[1];
             var bodyArea = dom_1.findParentByClassName(ev.target, 'body-area');
+            if (!bodyArea) {
+                mouse_1.emitMouseup(_this.el);
+                return;
+            }
             var side = dom_1.findParentByClassName(bodyArea, 'lside-area') ? 'L' : 'R';
             var scrollTop = bodyArea.scrollTop, scrollLeft = bodyArea.scrollLeft;
             var _c = bodyArea.getBoundingClientRect(), top = _c.top, left = _c.left;
@@ -20456,7 +20462,7 @@ var TextFilterComp = /** @class */ (function (_super) {
         _this.getPreviousValue = function () {
             var _a = _this.props, filterIndex = _a.filterIndex, filterState = _a.filterState;
             var state = filterState.state;
-            var code = 'eq';
+            var code = 'contain';
             var value = '';
             if (state.length && state[filterIndex]) {
                 var _b = state[filterIndex], prevCode = _b.code, prevValue = _b.value;

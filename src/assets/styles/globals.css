@@ -135,3 +135,13 @@ body {
   --bg-bo-nav-d2-active: var(--color-master-40);
   --bg-bo-nav-group: var(--color-master-80);
 }
+
+/* TUI Grid 드래그 핸들 아이콘 */
+.tui-grid-row-header-draggable span {
+  display: inline-block !important;
+  width: 3px !important;
+  height: 3px !important;
+  margin: 1.5px !important;
+  background: #9ca3af !important;
+  border-radius: 50% !important;
+}
