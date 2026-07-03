@@ -8,12 +8,11 @@ const TuiGridUtils = {
 
   /**
    * 버튼 셀 렌더러
-   * @example renderer: { type: TuiGridUtils.ActionButtonsRenderer, options: { buttons: [{ label, variant, show, onClick }] } }
    */
   ActionButtonsRenderer: class {
     constructor(props) {
       this.el = document.createElement('div');
-      this.el.className = 'flex h-full items-center gap-2';
+      this.el.className = 'flex h-full items-center px-2 gap-2';
       this._opts = (props.columnInfo.renderer && props.columnInfo.renderer.options) || {};
       this.render(props);
     }
@@ -41,7 +40,6 @@ const TuiGridUtils = {
 
   /**
    * 이미지 셀 렌더러
-   * @example renderer: { type: TuiGridUtils.ImageCellRenderer, options: { style: 'circle', w: 40, h: 40 } }
    */
   ImageCellRenderer: class {
     constructor(props) {
@@ -67,7 +65,6 @@ const TuiGridUtils = {
 
   /**
    * 링크 셀 렌더러
-   * @example renderer: { type: TuiGridUtils.LinkCellRenderer, options: { getUrl: (row) => row.url, target: '_blank', onClick: (row) => {} } }
    */
   LinkCellRenderer: class {
     constructor(props) {
@@ -105,8 +102,6 @@ const TuiGridUtils = {
 
   /**
    * 체크된 행들의 특정 컬럼 값들만 배열로 추출
-   * @param {tui.Grid} gridInstance
-   * @param {string} keyName - 추출할 키 (예: 'prodId')
    */
   getCheckedKeys(gridInstance, keyName) {
     if (!gridInstance) return [];
@@ -115,7 +110,6 @@ const TuiGridUtils = {
 
   /**
    * 화면 크기 변화나 부모 탭 전환 시 그리드 깨짐 방지용 리프레시
-   * @param {tui.Grid} gridInstance
    */
   fitLayout(gridInstance) {
     if (gridInstance) {
@@ -127,7 +121,6 @@ const TuiGridUtils = {
 const TuiGridFormatters = {
   /**
    * 금액 천단위 콤마 포맷터
-   * @example formatter: TuiGridFormatters.formatCurrency
    */
   formatCurrency: function({ value }) {
     if (value === undefined || value === null) return '0';
@@ -136,7 +129,6 @@ const TuiGridFormatters = {
 
   /**
    * 날짜 포맷터 (YYYY-MM-DD)
-   * @example formatter: TuiGridFormatters.formatDate
    */
   formatDate: function({ value }) {
     if (!value) return '-';
@@ -147,7 +139,6 @@ const TuiGridFormatters = {
 
   /**
    * 날짜+시간 포맷터 (YYYY-MM-DD HH:MM:SS)
-   * @example formatter: TuiGridFormatters.formatDateTime
    */
   formatDateTime: function({ value }) {
     if (!value) return '-';
@@ -160,7 +151,6 @@ const TuiGridFormatters = {
 
   /**
    * 할인율 / 백분율(%) 포맷터
-   * @example formatter: TuiGridFormatters.formatRate
    */
   formatRate: function({ value }) {
     if (value === undefined || value === null || value === '') return '-';

@@ -66,7 +66,45 @@ const TuiGridCommon = {
     });
 
     toolbarEl.appendChild(select);
-  }
+  },
+
+  // 체크박스 선택 개수 바인딩
+  bindCheckCounter(gridInstance, countEl) {
+    if (!gridInstance || !countEl) return;
+    const updateCount = () => {
+      const n = gridInstance.getCheckedRows().length;
+      countEl.textContent = '선택 ' + n + '개';
+    };
+
+    // TOAST UI Grid 체크 관련 이벤트 전체 바인딩
+    gridInstance.on('check', updateCount);
+    gridInstance.on('uncheck', updateCount);
+    gridInstance.on('checkAll', updateCount);
+    gridInstance.on('uncheckAll', updateCount);
+    
+    // 그리드 데이터가 새로 로드되거나 변경되었을 때도 동기화
+    gridInstance.on('onGridUpdated', updateCount); 
+
+    // 최초 1회 즉시 실행 (초기화)
+    updateCount();
+  },
+
+  // 총 결과 수 바인딩
+  bindTotalCounter(gridInstance, totalEl) {
+    if(!gridInstance || !totalEl) return;
+    const updateTotalCount = () => {
+      // 그리드의 전체 행(Row) 개수를 가져옴
+      const total = gridInstance.getRowCount();
+      totalEl.textContent = `총 ${total}건`;
+    };
+
+    // 데이터 로드, 필터링, 정렬, 행 추가/삭제 등 그리드가 업데이트될 때마다 실행
+    gridInstance.on('onGridUpdated', updateTotalCount);
+
+    // 최초 1회 즉시 실행 (초기화)
+    updateTotalCount();
+
+  },
 };
 
 const TuiGridToolbar = {

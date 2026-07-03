@@ -15,11 +15,11 @@
             <!-- 컨텐츠 시작 -->
             <h2 class="text-2xl font-bold mb-4">TUI Grid</h2>
 
-            <!-- ===== 1. 기본 리스트 ===== -->
             <div class="mt-10">
               <div id="toolbar1" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
                 <h3 class="text-lg font-semibold">01. 기본 리스트</h3>
                 <span class="ml-1 text-slate-400 text-xs">포매터 / 정렬 / 컬럼 리사이즈</span>
+                <span id="grid1Total" class="text-slate-600 font-bold">총 0건</span>
                 <div class="ml-auto flex gap-1">
                   <button data-grid-id="tuiGrid1" onclick="TuiGridToolbar.resetSort(this)" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">정렬 초기화</button>
                 </div>
@@ -27,12 +27,11 @@
               <div id="tuiGrid1" class="w-full"></div>
             </div>
 
-            <!-- ===== 2. 체크박스 선택 리스트 ===== -->
             <div class="mt-14">
               <div id="toolbar2" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
                 <h3 class="text-lg font-semibold">02. 체크박스 선택 리스트</h3>
                 <span class="ml-1 text-slate-400 text-xs">rowHeaders · check 이벤트</span>
-                <span id="tuiCheckedCount" class="text-slate-500">선택 0개</span>
+                <span id="grid2Count" class="text-slate-500">선택 0개</span>
                 <div class="ml-auto flex gap-1">
                   <button id="btnTuiCheckAll"   class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">전체 선택</button>
                   <button id="btnTuiUncheckAll" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded text-xs cursor-pointer">전체 해제</button>
@@ -42,7 +41,6 @@
               <div id="tuiGrid2" class="w-full"></div>
             </div>
 
-            <!-- ===== 3. 필터 리스트 ===== -->
             <div class="mt-14">
               <div id="toolbar3" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
                 <h3 class="text-lg font-semibold">03. 필터 리스트</h3>
@@ -54,7 +52,6 @@
               <div id="tuiGrid3" class="w-full"></div>
             </div>
 
-            <!-- ===== 4. 인라인 편집 리스트 ===== -->
             <div class="mt-14">
               <div id="toolbar4" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
                 <h3 class="text-lg font-semibold">04. 인라인 편집 리스트</h3>
@@ -67,7 +64,6 @@
               <div id="tuiGrid4" class="w-full"></div>
             </div>
 
-            <!-- ===== 5. 페이지네이션 리스트 ===== -->
             <div class="mt-14">
               <div id="toolbar5" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
                 <h3 class="text-lg font-semibold">05. 페이지네이션 리스트</h3>
@@ -77,7 +73,6 @@
               <div id="tuiGrid5" class="w-full"></div>
             </div>
 
-            <!-- ===== 6. 전시 순서 변경 ===== -->
             <div class="mt-14">
               <div id="toolbar6" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
                 <h3 class="text-lg font-semibold">06. 전시 순서 변경</h3>
@@ -89,6 +84,15 @@
                 </div>
               </div>
               <div id="tuiGrid6" class="w-full"></div>
+            </div>
+
+            <div class="mt-14">
+              <div id="toolbar7" class="grid-toolbar w-full flex items-center text-sm my-4 gap-2">
+                <h3 class="text-lg font-semibold">07. 렌더러 리스트</h3>
+                <span class="ml-1 text-slate-400 text-xs">ImageCellRenderer · LinkCellRenderer · ActionButtonsRenderer</span>
+                <div class="ml-auto flex gap-1"></div>
+              </div>
+              <div id="tuiGrid7" class="w-full"></div>
             </div>
             <!-- // 컨텐츠 끝 -->
           </div>
@@ -115,11 +119,11 @@
         { header: '상품명',   name: 'productName',   minWidth: 180, sortable: true },
         { header: '카테고리', name: 'category',      width: 110, align: 'center', sortable: true },
         { header: '판매상태', name: 'status',        width: 100, align: 'center', sortable: true },
-        { header: '정가',     name: 'originalPrice', width: 120, align: 'right',  sortable: true, formatter: TuiGridUtils.formatCurrency },
+        { header: '정가',     name: 'originalPrice', width: 120, align: 'right',  sortable: true, formatter: TuiGridFormatters.formatCurrency },
         { header: '할인율',   name: 'discountRate',  width: 90,  align: 'center', sortable: true, formatter: function({ value }) { return value + '%'; } },
-        { header: '판매가',   name: 'salePrice',     width: 120, align: 'right',  sortable: true, formatter: TuiGridUtils.formatCurrency },
+        { header: '판매가',   name: 'salePrice',     width: 120, align: 'right',  sortable: true, formatter: TuiGridFormatters.formatCurrency },
         { header: '재고',     name: 'stock',         width: 80,  align: 'right',  sortable: true },
-        { header: '등록일',   name: 'createdAt',     width: 110, align: 'center', sortable: true, formatter: TuiGridUtils.formatDate },
+        { header: '등록일',   name: 'createdAt',     width: 110, align: 'center', sortable: true, formatter: TuiGridFormatters.formatDate },
       ];
 
       // ──────────────────────────────────────────
@@ -131,6 +135,7 @@
         data: tuiSampleData,
         customOptions: { bodyHeight: 'auto' }
       });
+      TuiGridCommon.bindTotalCounter(grid1, document.getElementById('grid1Total'));
       TuiGridCommon.bindPerPage(grid1, document.querySelector('#toolbar1 .ml-auto'));
 
       window.grid1 = grid1;
@@ -148,16 +153,7 @@
         }
       });
 
-      const countEl = document.getElementById('tuiCheckedCount');
-      function updateCount() {
-        const n = grid2.getCheckedRows().length;
-        countEl.textContent = '선택 ' + n + '개';
-      }
-      grid2.on('check',     updateCount);
-      grid2.on('uncheck',   updateCount);
-      grid2.on('checkAll',  updateCount);
-      grid2.on('uncheckAll', updateCount);
-
+      TuiGridCommon.bindCheckCounter(grid2, document.getElementById('grid2Count'));
       TuiGridCommon.bindPerPage(grid2, document.querySelector('#toolbar2 .ml-auto'));
       document.getElementById('btnTuiCheckAll').onclick   = function() { grid2.checkAll(); };
       document.getElementById('btnTuiUncheckAll').onclick = function() { grid2.uncheckAll(); };
@@ -188,10 +184,10 @@
           header: '판매상태', name: 'status', width: 100, align: 'center', sortable: true,
           filter: { type: 'select' }
         },
-        { header: '정가',   name: 'originalPrice', width: 120, align: 'right',  sortable: true, formatter: TuiGridUtils.formatCurrency },
-        { header: '판매가', name: 'salePrice',     width: 120, align: 'right',  sortable: true, formatter: TuiGridUtils.formatCurrency },
+        { header: '정가',   name: 'originalPrice', width: 120, align: 'right',  sortable: true, formatter: TuiGridFormatters.formatCurrency },
+        { header: '판매가', name: 'salePrice',     width: 120, align: 'right',  sortable: true, formatter: TuiGridFormatters.formatCurrency },
         { header: '재고',   name: 'stock',         width: 80,  align: 'right',  sortable: true },
-        { header: '등록일', name: 'createdAt',     width: 110, align: 'center', sortable: true, formatter: TuiGridUtils.formatDate },
+        { header: '등록일', name: 'createdAt',     width: 110, align: 'center', sortable: true, formatter: TuiGridFormatters.formatDate },
       ];
 
       const grid3 = TuiGridCommon.createGrid({
@@ -243,13 +239,13 @@
             }
           }
         },
-        { header: '정가',   name: 'originalPrice', width: 120, align: 'right',  formatter: TuiGridUtils.formatCurrency },
-        { header: '판매가', name: 'salePrice',     width: 120, align: 'right',  formatter: TuiGridUtils.formatCurrency },
+        { header: '정가',   name: 'originalPrice', width: 120, align: 'right',  formatter: TuiGridFormatters.formatCurrency },
+        { header: '판매가', name: 'salePrice',     width: 120, align: 'right',  formatter: TuiGridFormatters.formatCurrency },
         {
           header: '재고', name: 'stock', width: 80, align: 'right',
           editor: { type: 'text' }
         },
-        { header: '등록일', name: 'createdAt', width: 110, align: 'center', formatter: TuiGridUtils.formatDate },
+        { header: '등록일', name: 'createdAt', width: 110, align: 'center', formatter: TuiGridFormatters.formatDate },
       ];
 
       const editOriginalData = JSON.parse(JSON.stringify(tuiSampleData));
@@ -286,9 +282,9 @@
           { header: '상품명',   name: 'productName', minWidth: 200, sortable: true },
           { header: '카테고리', name: 'category',    width: 120, align: 'center', sortable: true },
           { header: '판매상태', name: 'status',      width: 100, align: 'center', sortable: true },
-          { header: '판매가',   name: 'salePrice',   width: 130, align: 'right',  sortable: true, formatter: TuiGridUtils.formatCurrency },
+          { header: '판매가',   name: 'salePrice',   width: 130, align: 'right',  sortable: true, formatter: TuiGridFormatters.formatCurrency },
           { header: '재고',     name: 'stock',       width: 80,  align: 'right',  sortable: true },
-          { header: '등록일',   name: 'createdAt',   width: 110, align: 'center', sortable: true, formatter: TuiGridUtils.formatDate },
+          { header: '등록일',   name: 'createdAt',   width: 110, align: 'center', sortable: true, formatter: TuiGridFormatters.formatDate },
         ],
         data: tuiPagData,
         customOptions: {
@@ -315,7 +311,7 @@
           { header: '상품명',   name: 'productName',  minWidth: 180 },
           { header: '카테고리', name: 'category',     width: 110, align: 'center' },
           { header: '판매상태', name: 'status',       width: 100, align: 'center' },
-          { header: '판매가',   name: 'salePrice',    width: 120, align: 'right', formatter: TuiGridUtils.formatCurrency },
+          { header: '판매가',   name: 'salePrice',    width: 120, align: 'right', formatter: TuiGridFormatters.formatCurrency },
           { header: '재고',     name: 'stock',        width: 80,  align: 'right' },
         ],
         data: dragData,
@@ -390,6 +386,68 @@
         grid6.resetData(backupData);
         exitEditMode();
       };
+
+
+      // ──────────────────────────────────────────
+      // 7. 렌더러 리스트
+      // ──────────────────────────────────────────
+      const rendererData = tuiSampleData.map(function(row) {
+        return Object.assign({}, row, {
+          imageUrl: row.id % 3 === 0 ? '' : '/images/' + row.id + '.png',
+          detailUrl: '/product/detail?id=' + row.id,
+        });
+      });
+
+      const grid7 = TuiGridCommon.createGrid({
+        el: 'tuiGrid7',
+        columns: [
+          { header: 'ID',     name: 'id',          width: 55, align: 'center' },
+          {
+            header: '이미지', name: 'imageUrl',    width: 80, align: 'center',
+            renderer: {
+              type: TuiGridUtils.ImageCellRenderer,
+              options: { style: 'circle', w: 36, h: 36 }
+            }
+          },
+          {
+            header: '상품명', name: 'productName', minWidth: 180,
+            renderer: {
+              type: TuiGridUtils.LinkCellRenderer,
+              options: { getUrl: function(row) { return row.detailUrl; } }
+            }
+          },
+          { header: '카테고리', name: 'category',      width: 100, align: 'center' },
+          { header: '판매상태', name: 'status',        width: 90,  align: 'center' },
+          { header: '판매가',   name: 'salePrice',     width: 110, align: 'right', formatter: TuiGridFormatters.formatCurrency },
+          {
+            header: '액션', name: '', width: 150, align: 'center',
+            renderer: {
+              type: TuiGridUtils.ActionButtonsRenderer,
+              options: {
+                buttons: [
+                  {
+                    label: '상세보기',
+                    variant: 'secondary',
+                    onClick: function(row) { alert('상품 ID: ' + row.id + '\n' + row.productName); }
+                  },
+                  {
+                    label: '삭제',
+                    variant: 'danger',
+                    show: function(row) { return row.status !== '판매중'; },
+                    onClick: function(row) {
+                      if (confirm(row.productName + '을(를) 삭제하시겠습니까?')) {
+                        console.log('삭제:', row);
+                      }
+                    }
+                  },
+                ]
+              }
+            }
+          },
+        ],
+        data: rendererData,
+        customOptions: { bodyHeight: 'auto', rowHeight: 52 }
+      });
 
     });
     </script>
